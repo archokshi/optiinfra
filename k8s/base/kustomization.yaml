@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: optiinfra
+
+resources:
+  - namespace.yaml
+  # Database resources will be added in future prompts
+  # - databases/postgres.yaml
+  # - databases/clickhouse.yaml
+  # - databases/qdrant.yaml
+  # - databases/redis.yaml
+  # Orchestrator resources will be added in future prompts
+  # - orchestrator/deployment.yaml
+  # - orchestrator/service.yaml
+  # Agent resources will be added in future prompts
+  # - agents/cost-agent.yaml
+  # - agents/performance-agent.yaml
+  # - agents/resource-agent.yaml
+  # - agents/application-agent.yaml
+  # Portal resources will be added in future prompts
+  # - portal/deployment.yaml
+  # - portal/service.yaml
+  # - portal/ingress.yaml
+
+commonLabels:
+  app.kubernetes.io/name: optiinfra
+  app.kubernetes.io/managed-by: kustomize

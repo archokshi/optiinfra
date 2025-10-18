@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: optiinfra
+
+bases:
+  - ../../base
+
+namePrefix: prod-
+
+commonLabels:
+  environment: production
+
+configMapGenerator:
+  - name: optiinfra-config
+    literals:
+      - LOG_LEVEL=info
+      - ENVIRONMENT=production
+      - DEBUG=false
+
+# Resource patches for production (higher replicas, more resources)
+patchesStrategicMerge:
+  # Will be added in future prompts
+  # - replica-patch.yaml
+  # - resource-patch.yaml
