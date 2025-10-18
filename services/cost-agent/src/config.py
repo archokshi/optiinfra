@@ -28,6 +28,16 @@ class Settings(BaseSettings):
     # Redis (for later use)
     redis_url: Optional[str] = None
 
+    # LangGraph Configuration
+    enable_graph_visualization: bool = True
+    max_workflow_iterations: int = 10
+    workflow_timeout_seconds: int = 300
+
+    # LLM Configuration (for future use)
+    openai_api_key: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
+    default_llm_provider: str = "mock"  # "openai", "anthropic", or "mock"
+
     class Config:
         env_file = ".env"
         case_sensitive = False

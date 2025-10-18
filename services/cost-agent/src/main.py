@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api import health
+from src.api import analyze, health, spot_migration
 from src.config import settings
 from src.core.logger import setup_logging
 from src.core.registration import register_with_orchestrator
@@ -31,6 +31,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting OptiInfra Cost Agent")
     logger.info(f"Environment: {settings.environment}")
     logger.info(f"Port: {settings.port}")
+    logger.info("LangGraph workflows initialized (cost optimization + spot migration)")
 
     # Register with orchestrator
     if settings.orchestrator_url:
@@ -50,8 +51,8 @@ async def lifespan(app: FastAPI):
 # Create FastAPI app
 app = FastAPI(
     title="OptiInfra Cost Agent",
-    description="AI-powered cost optimization agent",
-    version="0.1.0",
+    description="AI-powered cost optimization agent with LangGraph workflows",
+    version="0.3.0",
     lifespan=lifespan,
 )
 
@@ -66,6 +67,8 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, tags=["health"])
+app.include_router(analyze.router, tags=["analysis"])
+app.include_router(spot_migration.router, tags=["spot-migration"])
 
 
 # Root endpoint
@@ -74,12 +77,14 @@ async def root():
     """Root endpoint - service information"""
     return {
         "service": "OptiInfra Cost Agent",
-        "version": "0.1.0",
+        "version": "0.3.0",
         "status": "running",
         "capabilities": [
             "spot_migration",
             "reserved_instances",
             "right_sizing",
+            "ai_workflow_optimization",
+            "spot_migration_demo",
         ],
     }
 
