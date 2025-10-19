@@ -65,14 +65,14 @@ class TestCustomerModel:
             name="Meta Corp",
             email="meta@example.com",
             api_key="meta_key",
-            metadata={"industry": "tech", "size": "100-500"},
+            customer_metadata={"industry": "tech", "size": "100-500"},
         )
         
         db_session.add(customer)
         db_session.commit()
         
-        assert customer.metadata["industry"] == "tech"
-        assert customer.metadata["size"] == "100-500"
+        assert customer.customer_metadata["industry"] == "tech"
+        assert customer.customer_metadata["size"] == "100-500"
 
 
 class TestAgentModel:

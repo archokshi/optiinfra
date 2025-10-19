@@ -34,7 +34,7 @@ def seed_core_data(session: Session) -> dict:
         api_key="acme_test_key_123456789",
         plan=CustomerPlan.ENTERPRISE,
         status=CustomerStatus.ACTIVE,
-        metadata={"industry": "technology", "size": "500-1000"},
+        customer_metadata={"industry": "technology", "size": "500-1000"},
     )
     
     customer2 = Customer(
@@ -44,7 +44,7 @@ def seed_core_data(session: Session) -> dict:
         api_key="startup_test_key_987654321",
         plan=CustomerPlan.STARTUP,
         status=CustomerStatus.ACTIVE,
-        metadata={"industry": "fintech", "size": "10-50"},
+        customer_metadata={"industry": "fintech", "size": "10-50"},
     )
     
     customer3 = Customer(
@@ -54,7 +54,7 @@ def seed_core_data(session: Session) -> dict:
         api_key="demo_test_key_111111111",
         plan=CustomerPlan.FREE,
         status=CustomerStatus.ACTIVE,
-        metadata={"industry": "demo", "size": "1-10"},
+        customer_metadata={"industry": "demo", "size": "1-10"},
     )
     
     session.add_all([customer1, customer2, customer3])
@@ -69,7 +69,7 @@ def seed_core_data(session: Session) -> dict:
         status=AgentStatus.HEALTHY,
         endpoint="http://localhost:8080",
         capabilities=["routing", "coordination", "approval_workflow"],
-        metadata={"environment": "development"},
+        agent_metadata={"environment": "development"},
         last_heartbeat=datetime.utcnow(),
     )
     
@@ -81,7 +81,7 @@ def seed_core_data(session: Session) -> dict:
         status=AgentStatus.HEALTHY,
         endpoint="http://localhost:8001",
         capabilities=["spot_migration", "right_sizing", "reserved_instances"],
-        metadata={"environment": "development"},
+        agent_metadata={"environment": "development"},
         last_heartbeat=datetime.utcnow(),
     )
     
@@ -93,7 +93,7 @@ def seed_core_data(session: Session) -> dict:
         status=AgentStatus.HEALTHY,
         endpoint="http://localhost:8002",
         capabilities=["kv_cache_tuning", "quantization", "batch_optimization"],
-        metadata={"environment": "development"},
+        agent_metadata={"environment": "development"},
         last_heartbeat=datetime.utcnow(),
     )
     
@@ -105,7 +105,7 @@ def seed_core_data(session: Session) -> dict:
         status=AgentStatus.HEALTHY,
         endpoint="http://localhost:8003",
         capabilities=["gpu_optimization", "auto_scaling", "resource_consolidation"],
-        metadata={"environment": "development"},
+        agent_metadata={"environment": "development"},
         last_heartbeat=datetime.utcnow(),
     )
     
@@ -117,7 +117,7 @@ def seed_core_data(session: Session) -> dict:
         status=AgentStatus.HEALTHY,
         endpoint="http://localhost:8004",
         capabilities=["quality_monitoring", "regression_detection", "ab_testing"],
-        metadata={"environment": "development"},
+        agent_metadata={"environment": "development"},
         last_heartbeat=datetime.utcnow(),
     )
     

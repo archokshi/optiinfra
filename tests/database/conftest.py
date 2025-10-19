@@ -2,7 +2,7 @@
 Test fixtures for database tests.
 """
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -13,16 +13,11 @@ from shared.config import settings
 @pytest.fixture(scope="function")
 def db_engine():
     """
-    Create an in-memory SQLite engine for testing.
+    Create a PostgreSQL engine for testing.
     
-    Note: Some PostgreSQL-specific features won't work in SQLite,
-    but basic CRUD operations will.
+    Uses the actual PostgreSQL database for full feature compatibility.
     """
-    engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
+    engine = create_engine(settings.database_url)
     
     # Create all tables
     Base.metadata.create_all(bind=engine)

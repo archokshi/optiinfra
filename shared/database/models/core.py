@@ -139,23 +139,24 @@ class Customer(Base):
         comment="API authentication key"
     )
     plan = Column(
-        Enum(CustomerPlan),
+        Enum(CustomerPlan, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=CustomerPlan.FREE,
         comment="Subscription plan"
     )
     status = Column(
-        Enum(CustomerStatus),
+        Enum(CustomerStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=CustomerStatus.ACTIVE,
         index=True,
         comment="Account status"
     )
-    metadata = Column(
+    customer_metadata = Column(
+        "metadata",
         JSONB,
         nullable=True,
         default={},
-        comment="Flexible metadata storage"
+        comment="Additional customer metadata (industry, size, etc.)"
     )
     created_at = Column(
         DateTime(timezone=True),
@@ -203,7 +204,7 @@ class Agent(Base):
         comment="Unique agent identifier"
     )
     type = Column(
-        Enum(AgentType),
+        Enum(AgentType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         index=True,
         comment="Agent type (cost, performance, etc.)"
@@ -219,7 +220,7 @@ class Agent(Base):
         comment="Agent version (semver)"
     )
     status = Column(
-        Enum(AgentStatus),
+        Enum(AgentStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=AgentStatus.STARTING,
         index=True,
@@ -236,10 +237,11 @@ class Agent(Base):
         default=[],
         comment="List of agent capabilities"
     )
-    metadata = Column(
+    agent_metadata = Column(
+        "metadata",
         JSONB,
         nullable=True,
-        default={},
+        default=dict,
         comment="Additional agent metadata"
     )
     last_heartbeat = Column(
@@ -314,7 +316,7 @@ class Event(Base):
         comment="Event type (e.g., optimization_started)"
     )
     severity = Column(
-        Enum(EventSeverity),
+        Enum(EventSeverity, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=EventSeverity.INFO,
         index=True,
@@ -414,14 +416,14 @@ class Recommendation(Base):
         comment="Confidence score (0.0 to 1.0)"
     )
     priority = Column(
-        Enum(RecommendationPriority),
+        Enum(RecommendationPriority, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=RecommendationPriority.MEDIUM,
         index=True,
         comment="Recommendation priority"
     )
     status = Column(
-        Enum(RecommendationStatus),
+        Enum(RecommendationStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=RecommendationStatus.PENDING,
         index=True,
@@ -507,7 +509,7 @@ class Approval(Base):
         comment="User who approved/rejected (email or ID)"
     )
     status = Column(
-        Enum(ApprovalStatus),
+        Enum(ApprovalStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=ApprovalStatus.PENDING,
         index=True,
@@ -582,7 +584,7 @@ class Optimization(Base):
         comment="Agent executing optimization"
     )
     status = Column(
-        Enum(OptimizationStatus),
+        Enum(OptimizationStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=OptimizationStatus.QUEUED,
         index=True,
