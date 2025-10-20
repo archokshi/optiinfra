@@ -267,6 +267,12 @@ class Agent(Base):
     events = relationship("Event", back_populates="agent", cascade="all, delete-orphan")
     recommendations = relationship("Recommendation", back_populates="agent", cascade="all, delete-orphan")
     optimizations = relationship("Optimization", back_populates="agent", cascade="all, delete-orphan")
+    
+    # Agent State Relationships (FOUNDATION-0.2b)
+    configs = relationship("AgentConfig", back_populates="agent", cascade="all, delete-orphan")
+    state = relationship("AgentState", back_populates="agent", uselist=False, cascade="all, delete-orphan")
+    capability_details = relationship("AgentCapability", back_populates="agent", cascade="all, delete-orphan")
+    metrics = relationship("AgentMetric", back_populates="agent", cascade="all, delete-orphan")
 
     # Indexes
     __table_args__ = (

@@ -22,9 +22,22 @@ from shared.database.models.core import (
     Optimization,
 )
 
+# Agent State Models (FOUNDATION-0.2b)
+from shared.database.models.agent_state import (
+    # Enums
+    ConfigType,
+    AgentStatusDetail,
+    MetricType,
+    # Models
+    AgentConfig,
+    AgentState,
+    AgentCapability,
+    AgentMetric,
+)
+
 __all__ = [
     "Base",
-    # Enums
+    # Core Enums
     "CustomerPlan",
     "CustomerStatus",
     "AgentType",
@@ -34,11 +47,20 @@ __all__ = [
     "RecommendationStatus",
     "ApprovalStatus",
     "OptimizationStatus",
-    # Models
+    # Agent State Enums
+    "ConfigType",
+    "AgentStatusDetail",
+    "MetricType",
+    # Core Models
     "Customer",
     "Agent",
     "Event",
     "Recommendation",
     "Approval",
     "Optimization",
+    # Agent State Models
+    "AgentConfig",
+    "AgentState",
+    "AgentCapability",
+    "AgentMetric",
 ]
