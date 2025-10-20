@@ -35,6 +35,18 @@ from shared.database.models.agent_state import (
     AgentMetric,
 )
 
+# Workflow history models (0.2c)
+from shared.database.models.workflow_history import (
+    WorkflowExecution,
+    WorkflowStep,
+    WorkflowArtifact,
+    # Enums
+    WorkflowType,
+    WorkflowStatus,
+    StepStatus,
+    ArtifactType,
+)
+
 __all__ = [
     "Base",
     # Core Enums
@@ -51,6 +63,11 @@ __all__ = [
     "ConfigType",
     "AgentStatusDetail",
     "MetricType",
+    # Workflow History Enums
+    "WorkflowType",
+    "WorkflowStatus",
+    "StepStatus",
+    "ArtifactType",
     # Core Models
     "Customer",
     "Agent",
@@ -63,4 +80,8 @@ __all__ = [
     "AgentState",
     "AgentCapability",
     "AgentMetric",
+    # Workflow History Models
+    "WorkflowExecution",
+    "WorkflowStep",
+    "WorkflowArtifact",
 ]

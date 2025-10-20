@@ -16,30 +16,31 @@ def db_engine():
     Create a PostgreSQL engine for testing.
     
     Uses the actual PostgreSQL database for full feature compatibility.
+    Tables should already exist from migrations.
     """
     engine = create_engine(settings.database_url)
-    
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
-    
     yield engine
-    
-    # Drop all tables
-    Base.metadata.drop_all(bind=engine)
     engine.dispose()
 
 
 @pytest.fixture(scope="function")
 def db_session(db_engine):
     """
-    Create a database session for testing.
+    Create a database session for testing with transaction rollback.
+    
+    Each test runs in a transaction that is rolled back after the test,
+    ensuring test isolation without recreating tables.
     """
-    SessionLocal = sessionmaker(bind=db_engine)
+    connection = db_engine.connect()
+    transaction = connection.begin()
+    SessionLocal = sessionmaker(bind=connection)
     session = SessionLocal()
     
     yield session
     
     session.close()
+    transaction.rollback()
+    connection.close()
 
 
 @pytest.fixture(scope="function")

@@ -176,6 +176,9 @@ class Customer(Base):
     events = relationship("Event", back_populates="customer", cascade="all, delete-orphan")
     recommendations = relationship("Recommendation", back_populates="customer", cascade="all, delete-orphan")
     optimizations = relationship("Optimization", back_populates="customer", cascade="all, delete-orphan")
+    
+    # Workflow History Relationships (FOUNDATION-0.2c)
+    workflow_executions = relationship("WorkflowExecution", back_populates="customer", cascade="all, delete-orphan")
 
     # Indexes
     __table_args__ = (
@@ -273,6 +276,9 @@ class Agent(Base):
     state = relationship("AgentState", back_populates="agent", uselist=False, cascade="all, delete-orphan")
     capability_details = relationship("AgentCapability", back_populates="agent", cascade="all, delete-orphan")
     metrics = relationship("AgentMetric", back_populates="agent", cascade="all, delete-orphan")
+    
+    # Workflow History Relationships (FOUNDATION-0.2c)
+    workflow_executions = relationship("WorkflowExecution", back_populates="agent", cascade="all, delete-orphan")
 
     # Indexes
     __table_args__ = (

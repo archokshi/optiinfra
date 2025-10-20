@@ -188,6 +188,16 @@ class AgentState(Base):
         default={},
         comment="Additional state metadata"
     )
+    
+    # Workflow Tracking (FOUNDATION-0.2c)
+    current_workflow_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("workflow_executions.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Currently executing workflow (if any)"
+    )
+    
     created_at = Column(
         DateTime(timezone=True),
         nullable=False,
@@ -204,6 +214,7 @@ class AgentState(Base):
 
     # Relationships
     agent = relationship("Agent", back_populates="state", uselist=False)
+    current_workflow = relationship("WorkflowExecution", foreign_keys=[current_workflow_id])
 
     # Indexes
     __table_args__ = (
