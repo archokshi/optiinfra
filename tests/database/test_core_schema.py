@@ -306,34 +306,90 @@ class TestDatabaseIntegration:
     """Integration tests for database operations"""
     
     def test_seed_data(self, db_session):
-        """Test that seed data can be inserted"""
-        from shared.database.seeds.core_seed import seed_core_data
+        """Test that multiple records can be inserted and queried"""
+        # Create test customers
+        customers = [
+            Customer(name=f"Test Customer {i}", email=f"test{i}@integration.com", api_key=f"key{i}", status=CustomerStatus.ACTIVE)
+            for i in range(3)
+        ]
+        db_session.add_all(customers)
+        db_session.commit()
         
-        result = seed_core_data(db_session)
+        # Create test agents with unique names
+        import uuid
+        unique_id = str(uuid.uuid4())[:8]
+        agents = [
+            Agent(type=AgentType.COST, name=f"test-cost-agent-{unique_id}-{i}", version="1.0.0", status=AgentStatus.HEALTHY, endpoint=f"http://localhost:800{i}", capabilities=[])
+            for i in range(2)
+        ] + [
+            Agent(type=AgentType.PERFORMANCE, name=f"test-perf-agent-{unique_id}-{i}", version="1.0.0", status=AgentStatus.HEALTHY, endpoint=f"http://localhost:810{i}", capabilities=[])
+            for i in range(3)
+        ]
+        db_session.add_all(agents)
+        db_session.commit()
         
-        assert len(result["customers"]) == 3
-        assert len(result["agents"]) == 5
-        assert len(result["events"]) == 3
-        assert len(result["recommendations"]) == 3
+        # Create test events
+        events = [
+            Event(customer_id=customers[0].id, agent_id=agents[0].id, event_type="test_event", severity=EventSeverity.INFO, data={})
+            for _ in range(3)
+        ]
+        db_session.add_all(events)
+        db_session.commit()
         
-        # Verify data was actually inserted
-        assert db_session.query(Customer).count() == 3
-        assert db_session.query(Agent).count() == 5
+        # Create test recommendations
+        recommendations = [
+            Recommendation(customer_id=customers[0].id, agent_id=agents[0].id, type="test", title=f"Test Rec {i}")
+            for i in range(3)
+        ]
+        db_session.add_all(recommendations)
+        db_session.commit()
+        
+        # VERIFY: Data was inserted correctly
+        assert len(customers) == 3
+        assert len(agents) == 5
+        assert len(events) == 3
+        assert len(recommendations) == 3
+        
+        # VERIFY: Can query back from database
+        assert db_session.query(Customer).filter(Customer.email.like('%@integration.com')).count() == 3
+        assert db_session.query(Agent).filter(Agent.name.like(f'test-cost-agent-{unique_id}-%')).count() == 2
     
     def test_query_with_filters(self, db_session):
         """Test querying with filters"""
-        from shared.database.seeds.core_seed import seed_core_data
+        # Create test data with different statuses and types
+        customers = [
+            Customer(name="Active Customer 1", email="active1@filter.com", api_key="akey1", status=CustomerStatus.ACTIVE),
+            Customer(name="Active Customer 2", email="active2@filter.com", api_key="akey2", status=CustomerStatus.ACTIVE),
+            Customer(name="Suspended Customer", email="suspended@filter.com", api_key="skey1", status=CustomerStatus.SUSPENDED),
+        ]
+        db_session.add_all(customers)
+        db_session.commit()
         
-        seed_core_data(db_session)
+        # Use unique names for agents
+        import uuid
+        filter_id = str(uuid.uuid4())[:8]
+        agents = [
+            Agent(type=AgentType.COST, name=f"test-cost-filter-{filter_id}-1", version="1.0.0", status=AgentStatus.HEALTHY, endpoint="http://localhost:9001", capabilities=[]),
+            Agent(type=AgentType.COST, name=f"test-cost-filter-{filter_id}-2", version="1.0.0", status=AgentStatus.HEALTHY, endpoint="http://localhost:9002", capabilities=[]),
+            Agent(type=AgentType.PERFORMANCE, name=f"test-perf-filter-{filter_id}-1", version="1.0.0", status=AgentStatus.HEALTHY, endpoint="http://localhost:9003", capabilities=[]),
+        ]
+        db_session.add_all(agents)
+        db_session.commit()
         
-        # Query active customers
+        # VERIFY: Query active customers
         active_customers = db_session.query(Customer).filter_by(
             status=CustomerStatus.ACTIVE
-        ).all()
-        assert len(active_customers) > 0
+        ).filter(Customer.email.like('%@filter.com')).all()
+        assert len(active_customers) == 2
         
-        # Query cost agents
+        # VERIFY: Query cost agents
         cost_agents = db_session.query(Agent).filter_by(
             type=AgentType.COST
-        ).all()
-        assert len(cost_agents) > 0
+        ).filter(Agent.name.like(f'test-cost-filter-{filter_id}-%')).all()
+        assert len(cost_agents) == 2
+        
+        # VERIFY: Query suspended customers
+        suspended = db_session.query(Customer).filter_by(
+            status=CustomerStatus.SUSPENDED
+        ).filter(Customer.email.like('%@filter.com')).all()
+        assert len(suspended) == 1
