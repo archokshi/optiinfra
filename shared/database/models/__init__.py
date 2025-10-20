@@ -47,6 +47,15 @@ from shared.database.models.workflow_history import (
     ArtifactType,
 )
 
+# Resource schema models (0.2d)
+from shared.database.models.resource_schema import (
+    ResourceMetric,
+    ScalingEvent,
+    # Enums
+    ResourceType,
+    ScalingEventType,
+)
+
 __all__ = [
     "Base",
     # Core Enums
@@ -84,4 +93,10 @@ __all__ = [
     "WorkflowExecution",
     "WorkflowStep",
     "WorkflowArtifact",
+    # Resource Schema Enums
+    "ResourceType",
+    "ScalingEventType",
+    # Resource Schema Models
+    "ResourceMetric",
+    "ScalingEvent",
 ]

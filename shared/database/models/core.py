@@ -179,6 +179,10 @@ class Customer(Base):
     
     # Workflow History Relationships (FOUNDATION-0.2c)
     workflow_executions = relationship("WorkflowExecution", back_populates="customer", cascade="all, delete-orphan")
+    
+    # Resource Schema Relationships (FOUNDATION-0.2d)
+    resource_metrics = relationship("ResourceMetric", back_populates="customer", cascade="all, delete-orphan")
+    scaling_events = relationship("ScalingEvent", back_populates="customer", cascade="all, delete-orphan")
 
     # Indexes
     __table_args__ = (
@@ -279,6 +283,10 @@ class Agent(Base):
     
     # Workflow History Relationships (FOUNDATION-0.2c)
     workflow_executions = relationship("WorkflowExecution", back_populates="agent", cascade="all, delete-orphan")
+    
+    # Resource Schema Relationships (FOUNDATION-0.2d)
+    resource_metrics = relationship("ResourceMetric", back_populates="agent", cascade="all, delete-orphan")
+    scaling_events = relationship("ScalingEvent", back_populates="agent", cascade="all, delete-orphan")
 
     # Indexes
     __table_args__ = (
