@@ -56,6 +56,18 @@ from shared.database.models.resource_schema import (
     ScalingEventType,
 )
 
+# Application schema models (0.2e)
+from shared.database.models.application_schema import (
+    QualityMetric,
+    QualityBaseline,
+    QualityRegression,
+    # Enums
+    BaselineType,
+    RegressionType,
+    RegressionSeverity,
+    RegressionAction,
+)
+
 __all__ = [
     "Base",
     # Core Enums
@@ -99,4 +111,13 @@ __all__ = [
     # Resource Schema Models
     "ResourceMetric",
     "ScalingEvent",
+    # Application Schema Enums
+    "BaselineType",
+    "RegressionType",
+    "RegressionSeverity",
+    "RegressionAction",
+    # Application Schema Models
+    "QualityMetric",
+    "QualityBaseline",
+    "QualityRegression",
 ]
