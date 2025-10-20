@@ -12,3 +12,6 @@ pytest-asyncio>=0.21.0
 
 # Utilities
 python-dotenv>=1.0.0
+
+# ClickHouse driver (FOUNDATION-0.3)
+clickhouse-driver==0.2.9
