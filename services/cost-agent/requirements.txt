@@ -1,35 +1,39 @@
-# FastAPI and server
-fastapi>=0.115.0
-uvicorn[standard]>=0.32.0
-pydantic>=2.10.0
-pydantic-settings>=2.6.0
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
 
-# HTTP client for orchestrator registration
-httpx>=0.28.0
+# LangGraph (from P-04)
+langgraph==0.0.25
+langchain==0.1.0
+langchain-core==0.1.0
 
-# Database (for later use)
-sqlalchemy>=2.0.36
-asyncpg>=0.30.0
+# Database Clients
+psycopg2-binary==2.9.9
+clickhouse-driver==0.2.6
+qdrant-client==1.7.0
+redis==5.0.1
 
-# Logging
-python-json-logger>=2.0.7
+# Metrics
+prometheus-client==0.19.0
 
-# LangGraph and LangChain
-langgraph>=0.0.20
-langchain>=0.1.0
-langchain-core>=0.1.10
-langchain-community>=0.0.10
+# Cloud SDKs (will be used in 1.2-1.4)
+boto3==1.34.0  # AWS
+google-cloud-billing==1.11.0  # GCP
+azure-mgmt-costmanagement==4.0.0  # Azure
 
-# Graph visualization
-networkx>=3.2.1
-matplotlib>=3.8.2
+# LLM (will be used in 1.8)
+openai==1.6.0
+anthropic==0.8.0
+
+# Utilities
+python-dotenv==1.0.0
+httpx==0.25.2
+tenacity==8.2.3
 
 # Testing
-pytest>=8.3.0
-pytest-asyncio>=0.24.0
-pytest-cov>=6.0.0
-
-# Development
-black>=24.10.0
-flake8>=7.1.0
-mypy>=1.13.0
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
