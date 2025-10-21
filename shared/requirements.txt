@@ -1,0 +1,12 @@
+# Database drivers
+psycopg2-binary==2.9.9
+clickhouse-driver==0.2.6
+qdrant-client==1.7.0
+redis==5.0.1
+
+# Configuration
+python-dotenv==1.0.0
+pydantic==2.5.0
+
+# Utilities
+requests==2.31.0
