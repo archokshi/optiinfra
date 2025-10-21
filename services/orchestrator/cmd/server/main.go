@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 
+	"optiinfra/services/orchestrator/internal/coordination"
 	"optiinfra/services/orchestrator/internal/registry"
 	"optiinfra/services/orchestrator/internal/task"
 )
@@ -40,6 +41,10 @@ func main() {
 	taskRouter := task.NewRouter(redisClient, agentRegistry)
 	log.Println("Task router initialized")
 
+	// Initialize Coordinator
+	coordinator := coordination.NewCoordinator()
+	log.Println("Coordinator initialized")
+
 	// Initialize Gin
 	router := gin.Default()
 
@@ -49,6 +54,11 @@ func main() {
 			"status":    "healthy",
 			"service":   "orchestrator",
 			"timestamp": time.Now(),
+			"components": gin.H{
+				"registry":    "healthy",
+				"task_router": "healthy",
+				"coordinator": "healthy",
+			},
 		})
 	})
 
@@ -58,6 +68,9 @@ func main() {
 
 	taskHandler := task.NewHandler(taskRouter)
 	taskHandler.RegisterRoutes(router)
+
+	coordinationHandler := coordination.NewHandler(coordinator)
+	coordinationHandler.RegisterRoutes(router)
 
 	// Start server
 	port := getEnv("PORT", "8080")
