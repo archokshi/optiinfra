@@ -13,6 +13,7 @@ import (
 	"github.com/go-redis/redis/v8"
 
 	"optiinfra/services/orchestrator/internal/registry"
+	"optiinfra/services/orchestrator/internal/task"
 )
 
 func main() {
@@ -35,6 +36,10 @@ func main() {
 	agentRegistry.Start()
 	defer agentRegistry.Stop()
 
+	// Initialize Task Router
+	taskRouter := task.NewRouter(redisClient, agentRegistry)
+	log.Println("Task router initialized")
+
 	// Initialize Gin
 	router := gin.Default()
 
@@ -47,9 +52,12 @@ func main() {
 		})
 	})
 
-	// Register agent registry routes
+	// Register routes
 	registryHandler := registry.NewHandler(agentRegistry)
 	registryHandler.RegisterRoutes(router)
+
+	taskHandler := task.NewHandler(taskRouter)
+	taskHandler.RegisterRoutes(router)
 
 	// Start server
 	port := getEnv("PORT", "8080")
