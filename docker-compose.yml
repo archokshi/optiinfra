@@ -110,11 +110,104 @@ services:
   #   networks:
   #     - optiinfra-network
 
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: optiinfra-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - optiinfra-network
+    restart: unless-stopped
+
+  # Grafana - Visualization
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: optiinfra-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=optiinfra_admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=
+    depends_on:
+      - prometheus
+    networks:
+      - optiinfra-network
+    restart: unless-stopped
+
+  # PostgreSQL Exporter
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: optiinfra-postgres-exporter
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://optiinfra:optiinfra_dev_password@postgres:5432/optiinfra?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - optiinfra-network
+    restart: unless-stopped
+
+  # ClickHouse Exporter
+  clickhouse-exporter:
+    image: f1yegor/clickhouse-exporter:latest
+    container_name: optiinfra-clickhouse-exporter
+    ports:
+      - "9116:9116"
+    environment:
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_USER=optiinfra
+      - CLICKHOUSE_PASSWORD=optiinfra_dev_password
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - optiinfra-network
+    restart: unless-stopped
+
+  # Redis Exporter
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.55.0
+    container_name: optiinfra-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - optiinfra-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   clickhouse_data:
   qdrant_data:
   redis_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   optiinfra-network:

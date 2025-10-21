@@ -1,0 +1,20 @@
+# Slack Notification Channel Configuration
+
+apiVersion: 1
+
+notifiers:
+  - name: slack-optiinfra
+    type: slack
+    uid: slack1
+    org_id: 1
+    is_default: true
+    send_reminder: true
+    frequency: 5m
+    disable_resolve_message: false
+    settings:
+      url: ${SLACK_WEBHOOK_URL}
+      recipient: "#optiinfra-alerts"
+      username: OptiInfra Grafana
+      icon_emoji: ":rocket:"
+      mentionChannel: "here"
+      uploadImage: true

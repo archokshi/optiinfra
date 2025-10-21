@@ -1,0 +1,194 @@
+# Sample PromQL Queries for OptiInfra
+# Use these in Prometheus UI or Grafana
+
+# ============================================
+# SERVICE HEALTH
+# ============================================
+
+# Services that are down
+up{job=~"orchestrator|.*-agent"} == 0
+
+# Service uptime percentage (24h)
+avg_over_time(up{job="orchestrator"}[24h]) * 100
+
+# All services status
+up{job=~"orchestrator|.*-agent|postgres|clickhouse|redis"}
+
+# ============================================
+# PERFORMANCE METRICS
+# ============================================
+
+# P95 latency by service
+histogram_quantile(0.95, 
+  rate(request_duration_seconds_bucket[5m])
+) by (service)
+
+# P50 latency
+histogram_quantile(0.50, 
+  rate(request_duration_seconds_bucket[5m])
+) by (service)
+
+# P99 latency
+histogram_quantile(0.99, 
+  rate(request_duration_seconds_bucket[5m])
+) by (service)
+
+# Request rate (QPS) by service
+sum(rate(requests_total[1m])) by (service)
+
+# Error rate percentage
+sum(rate(errors_total[5m])) / sum(rate(requests_total[5m])) * 100
+
+# Error rate by service
+sum(rate(errors_total[5m])) by (service) / sum(rate(requests_total[5m])) by (service) * 100
+
+# ============================================
+# COST OPTIMIZATION METRICS
+# ============================================
+
+# Total savings (last hour)
+increase(cost_savings_total[1h])
+
+# Total savings (last 24 hours)
+increase(cost_savings_total[24h])
+
+# Savings rate (per minute)
+rate(cost_savings_total[5m]) * 60
+
+# Savings rate (per hour)
+rate(cost_savings_total[5m]) * 3600
+
+# Spot migration success rate
+sum(rate(spot_migration_success_total[5m])) / 
+sum(rate(spot_migration_attempts_total[5m]))
+
+# Savings by optimization type
+sum by (type) (increase(cost_savings_total[24h]))
+
+# Cost recommendations by type
+sum by (type) (cost_recommendations_total)
+
+# ============================================
+# RESOURCE UTILIZATION
+# ============================================
+
+# Average GPU utilization
+avg(gpu_utilization) by (gpu_id)
+
+# Max GPU utilization
+max(gpu_utilization) by (gpu_id)
+
+# GPU memory usage
+sum(gpu_memory_used_bytes) by (gpu_id) / 1024 / 1024 / 1024
+
+# Memory usage across all agents (GB)
+sum(process_resident_memory_bytes) by (service) / 1024 / 1024 / 1024
+
+# CPU usage by service
+rate(process_cpu_seconds_total[5m]) by (service)
+
+# Active optimizations
+sum(active_optimizations) by (agent)
+
+# Scaling events (last hour)
+increase(scaling_events_total[1h])
+
+# ============================================
+# QUALITY METRICS
+# ============================================
+
+# Average quality score
+avg(quality_score)
+
+# Quality score by metric type
+avg(quality_score) by (metric_type)
+
+# Regression detections (last 24h)
+increase(regression_detections_total[24h])
+
+# A/B test results
+avg(ab_test_results) by (variant, metric)
+
+# ============================================
+# AGENT METRICS
+# ============================================
+
+# Agent requests by status
+sum(rate(agent_requests_total[5m])) by (agent, status)
+
+# Agent request duration (P95)
+histogram_quantile(0.95, 
+  rate(agent_request_duration_seconds_bucket[5m])
+) by (agent)
+
+# Agent health status
+agent_health_status
+
+# Coordination conflicts
+rate(coordination_conflicts_total[5m])
+
+# Approval workflow duration
+histogram_quantile(0.95, 
+  rate(approval_workflow_duration_seconds_bucket[5m])
+)
+
+# ============================================
+# LLM USAGE METRICS
+# ============================================
+
+# LLM API calls by provider
+sum(rate(llm_api_calls_total[5m])) by (provider, model)
+
+# LLM token usage
+sum(rate(llm_token_usage_total[5m])) by (provider, type)
+
+# LLM cost tracking
+sum(increase(llm_cost_total[1h])) by (provider)
+
+# ============================================
+# DATABASE METRICS
+# ============================================
+
+# PostgreSQL connections
+pg_stat_database_numbackends
+
+# PostgreSQL query rate
+rate(pg_stat_database_xact_commit[5m])
+
+# ClickHouse query rate
+rate(clickhouse_query_total[5m])
+
+# Redis memory usage
+redis_memory_used_bytes / 1024 / 1024
+
+# Redis hit rate
+rate(redis_keyspace_hits_total[5m]) / 
+(rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))
+
+# ============================================
+# ADVANCED QUERIES
+# ============================================
+
+# Cost savings rate with trend
+deriv(sum(increase(cost_savings_total[1h]))[10m:1m])
+
+# Error budget consumption (SLO: 99.9% uptime)
+1 - ((sum(rate(requests_total[30d])) - sum(rate(errors_total[30d]))) / sum(rate(requests_total[30d])))
+
+# Apdex score (Application Performance Index)
+(sum(rate(request_duration_seconds_bucket{le="0.1"}[5m])) +
+ sum(rate(request_duration_seconds_bucket{le="0.5"}[5m])) / 2) /
+sum(rate(request_duration_seconds_count[5m]))
+
+# GPU utilization efficiency
+avg(gpu_utilization) / (count(gpu_utilization) * 100)
+
+# Cost per optimization
+sum(increase(cost_total[24h])) / 
+sum(increase(optimization_executions_total[24h]))
+
+# Predict cost savings in next hour
+predict_linear(cost_savings_total[6h], 3600)
+
+# Request rate change (compared to 1 hour ago)
+sum(rate(requests_total[5m])) - sum(rate(requests_total[5m] offset 1h))

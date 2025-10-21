@@ -1,0 +1,144 @@
+# Prometheus Alert Rules for OptiInfra
+# Multi-agent LLM infrastructure optimization platform
+
+groups:
+  - name: optiinfra_alerts
+    interval: 30s
+    rules:
+      # Service Health Alerts
+      - alert: ServiceDown
+        expr: up{job=~"orchestrator|.*-agent"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(errors_total[5m])) by (service) 
+            / 
+            sum(rate(requests_total[5m])) by (service)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # Performance Alerts
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            rate(request_duration_seconds_bucket[5m])
+          ) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "High latency detected on {{ $labels.service }}"
+          description: "P95 latency is {{ $value }}s (threshold: 1.0s)"
+
+      # Database Alerts
+      - alert: HighDatabaseConnectionUsage
+        expr: |
+          (
+            pg_stat_database_numbackends 
+            / 
+            pg_settings_max_connections
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "PostgreSQL connection pool usage high"
+          description: "Connection pool usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      # Agent-Specific Alerts
+      - alert: AgentExecutionFailures
+        expr: |
+          increase(agent_execution_failures_total[5m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+          component: agent
+        annotations:
+          summary: "Multiple agent execution failures on {{ $labels.agent }}"
+          description: "{{ $value }} failures in the last 5 minutes"
+
+      - alert: CostAnomaly
+        expr: |
+          abs(
+            (cost_current - cost_baseline) / cost_baseline
+          ) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+          component: cost
+        annotations:
+          summary: "Cost anomaly detected"
+          description: "Cost changed by {{ $value | humanizePercentage }} (threshold: 20%)"
+
+      - alert: QualityRegression
+        expr: quality_score < 0.95
+        for: 10m
+        labels:
+          severity: critical
+          component: quality
+        annotations:
+          summary: "Quality score regression detected"
+          description: "Quality score dropped to {{ $value }} (threshold: 0.95)"
+
+      # Resource Alerts
+      - alert: HighGPUUtilization
+        expr: gpu_utilization > 0.95
+        for: 10m
+        labels:
+          severity: warning
+          component: resource
+        annotations:
+          summary: "GPU utilization very high on {{ $labels.gpu_id }}"
+          description: "GPU utilization is {{ $value | humanizePercentage }} (threshold: 95%)"
+
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            process_resident_memory_bytes 
+            / 
+            node_memory_MemTotal_bytes
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: resource
+        annotations:
+          summary: "High memory usage on {{ $labels.service }}"
+          description: "Memory usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      # Prometheus Self-Monitoring
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: monitoring
+        annotations:
+          summary: "Prometheus configuration reload failed"
+          description: "Prometheus configuration reload has been failing."
+
+      - alert: PrometheusTooManyRestarts
+        expr: changes(process_start_time_seconds{job="prometheus"}[15m]) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: monitoring
+        annotations:
+          summary: "Prometheus is restarting frequently"
+          description: "Prometheus has restarted {{ $value }} times in the last 15 minutes."

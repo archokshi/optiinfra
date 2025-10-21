@@ -1,0 +1,88 @@
+# Prometheus Configuration for OptiInfra
+# Multi-agent LLM infrastructure optimization platform
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'optiinfra'
+    environment: 'development'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # - alertmanager:9093
+
+# Load alert rules
+rule_files:
+  - 'alerts.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Orchestrator (Go service)
+  - job_name: 'orchestrator'
+    static_configs:
+      - targets: ['orchestrator:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Cost Agent (Python/FastAPI)
+  - job_name: 'cost-agent'
+    static_configs:
+      - targets: ['cost-agent:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Performance Agent (Python/FastAPI)
+  - job_name: 'performance-agent'
+    static_configs:
+      - targets: ['performance-agent:8002']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Resource Agent (Python/FastAPI)
+  - job_name: 'resource-agent'
+    static_configs:
+      - targets: ['resource-agent:8003']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Application Agent (Python/FastAPI)
+  - job_name: 'application-agent'
+    static_configs:
+      - targets: ['application-agent:8004']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # ClickHouse Exporter
+  - job_name: 'clickhouse'
+    static_configs:
+      - targets: ['clickhouse-exporter:9116']
+    scrape_interval: 30s
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 15s
+
+# Metric relabeling for consistent naming
+metric_relabel_configs:
+  - source_labels: [__name__]
+    regex: '(.+)'
+    target_label: service
+    replacement: 'optiinfra'

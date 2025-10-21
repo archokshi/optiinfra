@@ -1,0 +1,15 @@
+# Dashboard Provisioning Configuration
+
+apiVersion: 1
+
+providers:
+  - name: 'OptiInfra Dashboards'
+    orgId: 1
+    folder: 'OptiInfra'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

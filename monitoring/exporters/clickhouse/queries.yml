@@ -1,0 +1,144 @@
+# Custom ClickHouse queries for OptiInfra metrics
+# Used by clickhouse_exporter
+
+# Metrics volume by table
+clickhouse_table_metrics:
+  query: |
+    SELECT 
+      table,
+      sum(rows) as total_rows,
+      sum(bytes) as total_bytes,
+      max(modification_time) as last_modified
+    FROM system.parts
+    WHERE database = 'optiinfra' AND active = 1
+    GROUP BY table
+  metrics:
+    - table:
+        usage: "LABEL"
+        description: "Table name"
+    - total_rows:
+        usage: "GAUGE"
+        description: "Total rows in table"
+    - total_bytes:
+        usage: "GAUGE"
+        description: "Total bytes in table"
+
+# Query performance
+clickhouse_query_performance:
+  query: |
+    SELECT 
+      query_kind,
+      count() as query_count,
+      avg(query_duration_ms) as avg_duration_ms,
+      max(query_duration_ms) as max_duration_ms
+    FROM system.query_log
+    WHERE event_time > now() - INTERVAL 1 HOUR
+      AND type = 'QueryFinish'
+    GROUP BY query_kind
+  metrics:
+    - query_kind:
+        usage: "LABEL"
+        description: "Type of query"
+    - query_count:
+        usage: "GAUGE"
+        description: "Number of queries"
+    - avg_duration_ms:
+        usage: "GAUGE"
+        description: "Average query duration"
+    - max_duration_ms:
+        usage: "GAUGE"
+        description: "Maximum query duration"
+
+# Resource metrics volume
+clickhouse_resource_metrics:
+  query: |
+    SELECT 
+      count() as metric_count,
+      avg(cpu_usage) as avg_cpu,
+      avg(memory_usage) as avg_memory,
+      avg(gpu_utilization) as avg_gpu
+    FROM resource_metrics
+    WHERE timestamp > now() - INTERVAL 1 HOUR
+  metrics:
+    - metric_count:
+        usage: "GAUGE"
+        description: "Number of resource metrics"
+    - avg_cpu:
+        usage: "GAUGE"
+        description: "Average CPU usage"
+    - avg_memory:
+        usage: "GAUGE"
+        description: "Average memory usage"
+    - avg_gpu:
+        usage: "GAUGE"
+        description: "Average GPU utilization"
+
+# Cost metrics summary
+clickhouse_cost_metrics:
+  query: |
+    SELECT 
+      provider,
+      count() as metric_count,
+      sum(cost) as total_cost,
+      avg(cost) as avg_cost
+    FROM cost_metrics
+    WHERE timestamp > now() - INTERVAL 24 HOUR
+    GROUP BY provider
+  metrics:
+    - provider:
+        usage: "LABEL"
+        description: "Cloud provider"
+    - metric_count:
+        usage: "GAUGE"
+        description: "Number of cost metrics"
+    - total_cost:
+        usage: "GAUGE"
+        description: "Total cost"
+    - avg_cost:
+        usage: "GAUGE"
+        description: "Average cost"
+
+# Performance metrics summary
+clickhouse_performance_metrics:
+  query: |
+    SELECT 
+      count() as metric_count,
+      avg(latency_ms) as avg_latency,
+      avg(throughput) as avg_throughput
+    FROM performance_metrics
+    WHERE timestamp > now() - INTERVAL 1 HOUR
+  metrics:
+    - metric_count:
+        usage: "GAUGE"
+        description: "Number of performance metrics"
+    - avg_latency:
+        usage: "GAUGE"
+        description: "Average latency in ms"
+    - avg_throughput:
+        usage: "GAUGE"
+        description: "Average throughput"
+
+# Compression ratio
+clickhouse_compression:
+  query: |
+    SELECT 
+      table,
+      sum(data_compressed_bytes) as compressed_bytes,
+      sum(data_uncompressed_bytes) as uncompressed_bytes,
+      sum(data_uncompressed_bytes) / sum(data_compressed_bytes) as compression_ratio
+    FROM system.parts
+    WHERE database = 'optiinfra' AND active = 1
+    GROUP BY table
+  metrics:
+    - table:
+        usage: "LABEL"
+        description: "Table name"
+    - compressed_bytes:
+        usage: "GAUGE"
+        description: "Compressed data size"
+    - uncompressed_bytes:
+        usage: "GAUGE"
+        description: "Uncompressed data size"
+    - compression_ratio:
+        usage: "GAUGE"
+        description: "Compression ratio"
