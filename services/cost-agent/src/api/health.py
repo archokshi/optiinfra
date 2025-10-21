@@ -7,11 +7,11 @@ from pydantic import BaseModel
 from datetime import datetime
 import logging
 
-from shared.utils.database import (
+from shared.database.connections import (
     get_postgres_connection,
-    get_clickhouse_connection,
+    get_clickhouse_client,
     get_qdrant_client,
-    get_redis_connection
+    get_redis_client
 )
 
 router = APIRouter()
@@ -39,8 +39,8 @@ async def health_check():
     
     # Check PostgreSQL
     try:
-        conn = get_postgres_connection()
-        conn.close()
+        with get_postgres_connection() as conn:
+            pass  # Connection successful
         database_status["postgres"] = "healthy"
     except Exception as e:
         logger.error(f"PostgreSQL health check failed: {e}")
@@ -48,8 +48,8 @@ async def health_check():
     
     # Check ClickHouse
     try:
-        client = get_clickhouse_connection()
-        client.command("SELECT 1")
+        client = get_clickhouse_client()
+        client.execute("SELECT 1")
         database_status["clickhouse"] = "healthy"
     except Exception as e:
         logger.error(f"ClickHouse health check failed: {e}")
@@ -66,7 +66,7 @@ async def health_check():
     
     # Check Redis
     try:
-        redis = get_redis_connection()
+        redis = get_redis_client()
         redis.ping()
         database_status["redis"] = "healthy"
     except Exception as e:
@@ -89,8 +89,8 @@ async def health_check():
 async def readiness_check():
     """Kubernetes readiness probe."""
     try:
-        conn = get_postgres_connection()
-        conn.close()
+        with get_postgres_connection() as conn:
+            pass  # Connection successful
         return {"status": "ready"}
     except Exception as e:
         logger.error(f"Readiness check failed: {e}")

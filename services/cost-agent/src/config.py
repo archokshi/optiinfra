@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     
     # Database
-    DATABASE_URL: str = "postgresql://optiinfra:password@localhost:5432/optiinfra"
+    DATABASE_URL: str = "postgresql://optiinfra:optiinfra_dev_password@localhost:5432/optiinfra"
     CLICKHOUSE_URL: str = "http://localhost:8123"
     QDRANT_URL: str = "http://localhost:6333"
     REDIS_URL: str = "redis://localhost:6379"

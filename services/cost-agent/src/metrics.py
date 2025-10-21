@@ -144,3 +144,7 @@ class CostAgentMetrics(BaseMetrics):
         self.instances_analyzed_total.labels(
             provider=provider
         ).inc(instance_count)
+
+
+# Global metrics instance
+cost_metrics = CostAgentMetrics()

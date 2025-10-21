@@ -14,7 +14,8 @@ import logging
 
 from src.api import health, analyze
 from src.config import settings
-from shared.utils.database import get_postgres_connection
+from src.metrics import cost_metrics
+from shared.database.connections import initialize_all_databases, get_postgres_connection
 from shared.utils.prometheus_metrics import FastAPIMetricsMiddleware
 
 # Initialize FastAPI app
@@ -34,7 +35,7 @@ app.add_middleware(
 )
 
 # Add Prometheus metrics middleware
-app.add_middleware(FastAPIMetricsMiddleware, app_name="cost-agent")
+app.add_middleware(FastAPIMetricsMiddleware, metrics=cost_metrics)
 
 # Include routers
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
@@ -51,13 +52,12 @@ async def startup_event():
     logger = logging.getLogger(__name__)
     logger.info("Starting Cost Agent...")
     
-    # Test database connection
+    # Initialize all database connections
     try:
-        conn = get_postgres_connection()
-        conn.close()
-        logger.info("Database connection successful")
+        initialize_all_databases()
+        logger.info("All database connections initialized successfully")
     except Exception as e:
-        logger.error(f"Database connection failed: {e}")
+        logger.error(f"Database initialization failed: {e}")
         raise
 
 
