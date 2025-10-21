@@ -299,9 +299,7 @@ func (r *Registry) healthMonitor() {
 }
 
 func (r *Registry) checkAgentHealth() {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
+	// Don't lock here - GetAllAgents will handle its own locking
 	agents, err := r.GetAllAgents()
 	if err != nil {
 		log.Printf("Error checking agent health: %v", err)
@@ -318,9 +316,13 @@ func (r *Registry) checkAgentHealth() {
 				log.Printf("Agent %s (%s) is unreachable - last seen %v ago",
 					agent.Name, agent.ID, timeSinceLastSeen)
 				agent.Status = AgentStatusUnreachable
+				
+				// Lock only for the update
+				r.mu.Lock()
 				if err := r.storeAgent(agent); err != nil {
 					log.Printf("Failed to update agent status: %v", err)
 				}
+				r.mu.Unlock()
 			}
 		}
 	}
