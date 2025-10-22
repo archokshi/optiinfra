@@ -30,7 +30,15 @@ class Settings(BaseSettings):
     # Cloud Providers (will be used in 1.2-1.4)
     AWS_ACCESS_KEY_ID: Optional[str] = None
     AWS_SECRET_ACCESS_KEY: Optional[str] = None
-    AWS_REGION: str = "us-east-1"
+    AWS_DEFAULT_REGION: str = "us-east-1"
+    AWS_REGIONS: list = ["us-east-1", "us-west-2", "eu-west-1"]
+    
+    # AWS Cost Collection Settings
+    AWS_COST_LOOKBACK_DAYS: int = 30
+    AWS_IDLE_CPU_THRESHOLD: float = 5.0  # CPU < 5% = idle
+    AWS_UNDERUTILIZED_CPU_THRESHOLD: float = 20.0  # CPU < 20% = underutilized
+    AWS_SPOT_SAVINGS_TARGET: float = 0.35  # 35% target savings
+    AWS_COLLECTION_SCHEDULE: str = "0 2 * * *"  # Daily at 2 AM
     
     GCP_PROJECT_ID: Optional[str] = None
     GCP_CREDENTIALS_PATH: Optional[str] = None

@@ -94,6 +94,63 @@ class CostAgentMetrics(BaseMetrics):
             ['provider'],
             registry=self.registry
         )
+        
+        # AWS-specific metrics
+        self.aws_api_calls_total = Counter(
+            'aws_api_calls_total',
+            'Total AWS API calls',
+            ['service', 'operation'],
+            registry=self.registry
+        )
+        
+        self.aws_api_errors_total = Counter(
+            'aws_api_errors_total',
+            'Total AWS API errors',
+            ['service', 'error_type'],
+            registry=self.registry
+        )
+        
+        self.aws_cost_collection_duration_seconds = Histogram(
+            'aws_cost_collection_duration_seconds',
+            'Duration of AWS cost collection in seconds',
+            buckets=(1, 5, 10, 30, 60, 120, 300),
+            registry=self.registry
+        )
+        
+        self.aws_total_monthly_cost_usd = Gauge(
+            'aws_total_monthly_cost_usd',
+            'Total AWS monthly cost in USD',
+            ['service', 'region'],
+            registry=self.registry
+        )
+        
+        self.aws_waste_identified_usd = Gauge(
+            'aws_waste_identified_usd',
+            'Identified waste in USD',
+            ['service'],
+            registry=self.registry
+        )
+        
+        self.aws_optimization_opportunities = Gauge(
+            'aws_optimization_opportunities',
+            'Number of optimization opportunities',
+            ['type'],
+            registry=self.registry
+        )
+        
+        self.aws_idle_resources_count = Gauge(
+            'aws_idle_resources_count',
+            'Number of idle resources',
+            ['service'],
+            registry=self.registry
+        )
+        
+        self.aws_underutilized_resources_count = Gauge(
+            'aws_underutilized_resources_count',
+            'Number of underutilized resources',
+            ['service'],
+            registry=self.registry
+        )
     
     def record_savings(self, provider: str, optimization_type: str, amount: float):
         """Record cost savings"""

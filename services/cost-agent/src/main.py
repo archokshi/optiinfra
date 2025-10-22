@@ -13,6 +13,7 @@ from prometheus_client import make_asgi_app
 import logging
 
 from src.api import health, analyze
+from src.api import aws_costs
 from src.config import settings
 from src.metrics import cost_metrics
 from shared.database.connections import initialize_all_databases, get_postgres_connection
@@ -40,6 +41,7 @@ app.add_middleware(FastAPIMetricsMiddleware, metrics=cost_metrics)
 # Include routers
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
 app.include_router(analyze.router, prefix="/api/v1", tags=["analysis"])
+app.include_router(aws_costs.router, prefix="/api/v1/aws", tags=["aws-costs"])
 
 # Metrics endpoint
 metrics_app = make_asgi_app()
