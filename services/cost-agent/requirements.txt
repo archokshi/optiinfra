@@ -4,15 +4,17 @@ uvicorn[standard]==0.24.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
-# LangGraph (from P-04)
-langgraph==0.0.25
-langchain==0.1.0
-langchain-core==0.1.0
+# LangGraph (from P-04, updated in PHASE1-1.5 - using latest compatible versions)
+langgraph>=0.2.0,<0.3.0
+langchain>=0.2.7,<0.3.0
+langchain-core>=0.2.43,<0.4.0
+langchain-openai>=0.1.7,<0.2.0
+langgraph-checkpoint>=1.0.0  # For checkpointing support
 
 # Database Clients
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 clickhouse-driver==0.2.6
-qdrant-client==1.7.0
+qdrant-client==1.15.1
 redis==5.0.1
 
 # Metrics
@@ -21,16 +23,47 @@ prometheus-client==0.19.0
 # Cloud SDKs (will be used in 1.2-1.4)
 boto3==1.34.0  # AWS
 google-cloud-billing==1.11.0  # GCP
-azure-mgmt-costmanagement==4.0.0  # Azure
+google-cloud-compute==1.14.0  # GCP Compute Engine
+google-cloud-functions==1.13.0  # GCP Cloud Functions
+google-cloud-storage==2.10.0  # GCP Cloud Storage
+google-cloud-monitoring==2.16.0  # GCP Cloud Monitoring
+google-cloud-bigquery==3.13.0  # GCP BigQuery
+google-cloud-resource-manager==1.10.0  # GCP Resource Manager
+google-cloud-service-usage==1.6.1  # GCP Service Usage API
+azure-mgmt-costmanagement==4.0.1  # Azure Cost Management
+azure-mgmt-compute==37.0.1  # Azure Compute
+azure-mgmt-sql==3.0.1  # Azure SQL
+azure-mgmt-web==10.0.0  # Azure Functions
+azure-mgmt-storage==24.0.0  # Azure Storage
+azure-mgmt-monitor==7.0.0  # Azure Monitor
+azure-mgmt-network==30.0.0  # Azure Network
+azure-mgmt-resource==23.0.0  # Azure Resource Management
+azure-identity==1.15.0  # Azure Authentication
 
-# LLM (will be used in 1.8)
-openai==1.6.0
-anthropic==0.8.0
+# Analytics & Math
+numpy==1.26.2
+
+# Logging
+python-json-logger==2.0.7
+
+# Vultr SDK (PHASE1-1.41)
+requests==2.31.0  # HTTP client for Vultr API
+aiohttp==3.9.1  # Async HTTP client
+responses==0.24.1  # Mock HTTP requests for testing
+
+# LLM (PHASE1-1.8)
+groq==0.9.0  # Groq API client for gpt-oss-20b
+# tiktoken==0.7.0  # Token counting (optional, requires Rust compiler)
+openai>=1.8.0,<2.0.0  # OpenAI client for embeddings
+anthropic>=0.8.0,<0.9.0  # Legacy (for future use)
 
 # Utilities
 python-dotenv==1.0.0
 httpx==0.25.2
 tenacity==8.2.3
+
+# Authentication (PHASE1-1.12)
+pyjwt==2.8.0  # JWT token handling
 
 # Testing
 pytest==7.4.3

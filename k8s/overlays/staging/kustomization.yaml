@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: optiinfra
+namespace: optiinfra-staging
 
 bases:
   - ../../base
@@ -11,15 +11,29 @@ namePrefix: staging-
 commonLabels:
   environment: staging
 
-configMapGenerator:
-  - name: optiinfra-config
-    literals:
-      - LOG_LEVEL=info
-      - ENVIRONMENT=staging
-      - DEBUG=false
+replicas:
+  - name: portal
+    count: 1
 
-# Resource patches for staging
-patchesStrategicMerge:
-  # Will be added in future prompts
-  # - replica-patch.yaml
-  # - resource-patch.yaml
+images:
+  - name: optiinfra/cost-agent
+    newName: ghcr.io/optiinfra/optiinfra/cost-agent
+    newTag: develop
+  - name: optiinfra/performance-agent
+    newName: ghcr.io/optiinfra/optiinfra/performance-agent
+    newTag: develop
+  - name: optiinfra/resource-agent
+    newName: ghcr.io/optiinfra/optiinfra/resource-agent
+    newTag: develop
+  - name: optiinfra/application-agent
+    newName: ghcr.io/optiinfra/optiinfra/application-agent
+    newTag: develop
+  - name: optiinfra/portal
+    newName: ghcr.io/optiinfra/optiinfra/portal
+    newTag: develop
+
+configMapGenerator:
+  - name: environment-config
+    literals:
+      - ENVIRONMENT=staging
+      - LOG_LEVEL=DEBUG

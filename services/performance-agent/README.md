@@ -42,25 +42,29 @@ performance-agent/
 ## Development
 
 ### Prerequisites
-- Python 3.11+
-- Docker (for local testing)
-
-### Setup
 ```bash
-cd services/performance-agent
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
 
-### Run locally
-```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run
+python src/main.py
+
+# Or with uvicorn
 uvicorn src.main:app --reload --port 8002
 ```
 
-### Run tests
+### Docker
+
 ```bash
-pytest tests/ -v --cov=src
+# Build and run
+docker-compose up -d
+
+# View logs
+docker-compose logs -f performance-agent
 ```
 
 ## API Endpoints

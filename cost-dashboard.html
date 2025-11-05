@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiInfra Cost Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">OptiInfra Cost Dashboard</h1>
+            <p class="text-gray-500">Real-time RunPod cost metrics</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="card">
+                <div class="text-sm text-gray-500 mb-1">Total Cost</div>
+                <div class="text-3xl font-bold text-indigo-600" id="total-cost">$0.00</div>
+                <div class="text-xs text-gray-400 mt-1">Last 30 days</div>
+            </div>
+            <div class="card">
+                <div class="text-sm text-gray-500 mb-1">Daily Cost</div>
+                <div class="text-3xl font-bold text-blue-600" id="daily-cost">$0.00</div>
+                <div class="text-xs text-gray-400 mt-1">Last 24 hours</div>
+            </div>
+            <div class="card">
+                <div class="text-sm text-gray-500 mb-1">Potential Savings</div>
+                <div class="text-3xl font-bold text-green-600" id="savings-potential">$0.00</div>
+                <div class="text-xs text-gray-400 mt-1">Available optimizations</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+            <div class="card">
+                <h2 class="text-lg font-semibold mb-4">Cost Trend</h2>
+                <canvas id="cost-chart" height="250"></canvas>
+            </div>
+            <div class="card">
+                <h2 class="text-lg font-semibold mb-4">Cost Breakdown</h2>
+                <canvas id="breakdown-chart" height="250"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="text-lg font-semibold mb-4">Cost Details</h2>
+            <div id="status-message" class="text-center py-4 hidden">
+                <div class="text-gray-500">Loading cost data...</div>
+            </div>
+            <div id="data-table">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left border-b">
+                            <th class="py-2">Time</th>
+                            <th class="py-2">Cost</th>
+                            <th class="py-2">Type</th>
+                            <th class="py-2">Resource</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cost-details">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const COST_AGENT_URL = 'http://localhost:8001';
+        const CUSTOMER_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+        const PROVIDER = 'runpod';
+
+        document.getElementById('status-message').classList.remove('hidden');
+
+        // Format currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleString();
+        }
+
+        // Fetch dashboard data
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch(`${COST_AGENT_URL}/api/v1/dashboard?customer_id=${CUSTOMER_ID}&provider=${PROVIDER}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                document.getElementById('status-message').textContent = `Error: ${error.message}`;
+                return null;
+            }
+        }
+
+        // Initialize and update charts
+        let costChart, breakdownChart;
+
+        function updateUI(data) {
+            document.getElementById('status-message').classList.add('hidden');
+            
+            if (!data) return;
+            
+            // Update metric cards
+            const costMetrics = data.metrics.cost;
+            document.getElementById('total-cost').textContent = formatCurrency(costMetrics.total_cost);
+            document.getElementById('daily-cost').textContent = formatCurrency(costMetrics.daily_cost);
+            document.getElementById('savings-potential').textContent = formatCurrency(costMetrics.savings_potential);
+            
+            // Process timeseries data
+            const timeLabels = [];
+            const costValues = [];
+            
+            if (data.timeseries && data.timeseries.length > 0) {
+                data.timeseries.forEach(item => {
+                    const date = new Date(item.timestamp);
+                    timeLabels.push(date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+                    costValues.push(item.cost || 0);
+                });
+            }
+            
+            // Cost trend chart
+            const costCtx = document.getElementById('cost-chart').getContext('2d');
+            if (costChart) {
+                costChart.destroy();
+            }
+            
+            costChart = new Chart(costCtx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: 'Cost ($)',
+                        data: costValues,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Cost breakdown chart (mocked data since we don't have breakdown)
+            const breakdownCtx = document.getElementById('breakdown-chart').getContext('2d');
+            if (breakdownChart) {
+                breakdownChart.destroy();
+            }
+            
+            const totalCost = costMetrics.total_cost;
+            breakdownChart = new Chart(breakdownCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Compute', 'Storage', 'Networking', 'Other'],
+                    datasets: [{
+                        data: [totalCost * 0.7, totalCost * 0.15, totalCost * 0.1, totalCost * 0.05],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',  // blue
+                            'rgba(16, 185, 129, 0.8)',  // green
+                            'rgba(245, 158, 11, 0.8)',  // amber
+                            'rgba(107, 114, 128, 0.8)'  // gray
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Create cost details rows
+            const costDetails = document.getElementById('cost-details');
+            costDetails.innerHTML = '';
+            
+            // Fetch latest costs
+            fetch(`${COST_AGENT_URL}/api/v2/costs/${CUSTOMER_ID}/${PROVIDER}/latest?limit=10`)
+                .then(response => response.json())
+                .then(latestCosts => {
+                    if (latestCosts && latestCosts.length > 0) {
+                        latestCosts.forEach(cost => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b';
+                            row.innerHTML = `
+                                <td class="py-2">${formatDate(cost.timestamp)}</td>
+                                <td class="py-2">${formatCurrency(cost.cost)}</td>
+                                <td class="py-2">${cost.cost_type || 'N/A'}</td>
+                                <td class="py-2">${cost.instance_id || 'N/A'}</td>
+                            `;
+                            costDetails.appendChild(row);
+                        });
+                    } else {
+                        const row = document.createElement('tr');
+                        row.innerHTML = '<td colspan="4" class="py-4 text-center text-gray-500">No recent cost data available</td>';
+                        costDetails.appendChild(row);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching latest costs:', error);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="4" class="py-4 text-center text-red-500">Error loading cost details: ${error.message}</td>`;
+                    costDetails.appendChild(row);
+                });
+        }
+
+        // Fetch data and update UI
+        fetchDashboardData().then(updateUI);
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            fetchDashboardData().then(updateUI);
+        }, 30000);
+    </script>
+</body>
+</html>

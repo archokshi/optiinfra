@@ -3,23 +3,42 @@ kind: Kustomization
 
 namespace: optiinfra
 
-bases:
-  - ../../base
-
-namePrefix: prod-
-
 commonLabels:
   environment: production
 
-configMapGenerator:
-  - name: optiinfra-config
-    literals:
-      - LOG_LEVEL=info
-      - ENVIRONMENT=production
-      - DEBUG=false
+bases:
+  - ../../base
 
-# Resource patches for production (higher replicas, more resources)
-patchesStrategicMerge:
-  # Will be added in future prompts
-  # - replica-patch.yaml
-  # - resource-patch.yaml
+replicas:
+  - name: portal
+    count: 3
+  - name: cost-agent
+    count: 2
+  - name: performance-agent
+    count: 2
+
+images:
+  - name: optiinfra/cost-agent
+    newName: ghcr.io/optiinfra/optiinfra/cost-agent
+    newTag: latest
+  - name: optiinfra/performance-agent
+    newName: ghcr.io/optiinfra/optiinfra/performance-agent
+    newTag: latest
+  - name: optiinfra/resource-agent
+    newName: ghcr.io/optiinfra/optiinfra/resource-agent
+    newTag: latest
+  - name: optiinfra/application-agent
+    newName: ghcr.io/optiinfra/optiinfra/application-agent
+    newTag: latest
+  - name: optiinfra/portal
+    newName: ghcr.io/optiinfra/optiinfra/portal
+    newTag: latest
+
+configMapGenerator:
+  - name: environment-config
+    literals:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+
+resources:
+  - hpa.yaml

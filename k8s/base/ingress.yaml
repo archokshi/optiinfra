@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: optiinfra-ingress
+  namespace: optiinfra
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: optiinfra.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: portal
+            port:
+              number: 3000
+      - path: /api/cost
+        pathType: Prefix
+        backend:
+          service:
+            name: cost-agent
+            port:
+              number: 8001
+      - path: /api/performance
+        pathType: Prefix
+        backend:
+          service:
+            name: performance-agent
+            port:
+              number: 8002
+      - path: /api/resource
+        pathType: Prefix
+        backend:
+          service:
+            name: resource-agent
+            port:
+              number: 8003
+      - path: /api/application
+        pathType: Prefix
+        backend:
+          service:
+            name: application-agent
+            port:
+              number: 8004

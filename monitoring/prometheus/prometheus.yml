@@ -79,10 +79,3 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
     scrape_interval: 15s
-
-# Metric relabeling for consistent naming
-metric_relabel_configs:
-  - source_labels: [__name__]
-    regex: '(.+)'
-    target_label: service
-    replacement: 'optiinfra'

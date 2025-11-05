@@ -1,0 +1,6 @@
+{
+  "customer_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "provider": "runpod",
+  "data_types": ["cost"],
+  "async_mode": false
+}

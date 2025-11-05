@@ -151,6 +151,132 @@ class CostAgentMetrics(BaseMetrics):
             ['service'],
             registry=self.registry
         )
+        
+        # GCP-specific metrics
+        self.gcp_api_calls_total = Counter(
+            'gcp_api_calls_total',
+            'Total GCP API calls',
+            ['service', 'operation'],
+            registry=self.registry
+        )
+        
+        self.gcp_api_errors_total = Counter(
+            'gcp_api_errors_total',
+            'Total GCP API errors',
+            ['service', 'error_type'],
+            registry=self.registry
+        )
+        
+        self.gcp_cost_collection_duration_seconds = Histogram(
+            'gcp_cost_collection_duration_seconds',
+            'Duration of GCP cost collection in seconds',
+            buckets=(1, 5, 10, 30, 60, 120, 300),
+            registry=self.registry
+        )
+        
+        self.gcp_total_monthly_cost_usd = Gauge(
+            'gcp_total_monthly_cost_usd',
+            'Total GCP monthly cost in USD',
+            ['service', 'region'],
+            registry=self.registry
+        )
+        
+        self.gcp_waste_identified_usd = Gauge(
+            'gcp_waste_identified_usd',
+            'Identified waste in USD',
+            ['service'],
+            registry=self.registry
+        )
+        
+        self.gcp_optimization_opportunities = Gauge(
+            'gcp_optimization_opportunities',
+            'Number of optimization opportunities',
+            ['type'],
+            registry=self.registry
+        )
+        
+        self.gcp_idle_resources_count = Gauge(
+            'gcp_idle_resources_count',
+            'Number of idle resources',
+            ['service'],
+            registry=self.registry
+        )
+        
+        self.gcp_underutilized_resources_count = Gauge(
+            'gcp_underutilized_resources_count',
+            'Number of underutilized resources',
+            ['service'],
+            registry=self.registry
+        )
+        
+        # Azure-specific metrics
+        self.azure_api_calls_total = Counter(
+            'azure_api_calls_total',
+            'Total Azure API calls',
+            ['service', 'operation'],
+            registry=self.registry
+        )
+        
+        self.azure_api_errors_total = Counter(
+            'azure_api_errors_total',
+            'Total Azure API errors',
+            ['service', 'error_type'],
+            registry=self.registry
+        )
+        
+        self.azure_cost_collection_duration_seconds = Histogram(
+            'azure_cost_collection_duration_seconds',
+            'Duration of Azure cost collection in seconds',
+            buckets=(1, 5, 10, 30, 60, 120, 300),
+            registry=self.registry
+        )
+        
+        self.azure_total_monthly_cost_usd = Gauge(
+            'azure_total_monthly_cost_usd',
+            'Total Azure monthly cost in USD',
+            ['service', 'location'],
+            registry=self.registry
+        )
+        
+        self.azure_waste_identified_usd = Gauge(
+            'azure_waste_identified_usd',
+            'Identified waste in USD',
+            ['service'],
+            registry=self.registry
+        )
+        
+        self.azure_optimization_opportunities = Gauge(
+            'azure_optimization_opportunities',
+            'Number of optimization opportunities',
+            ['type'],
+            registry=self.registry
+        )
+        
+        self.azure_idle_resources_count = Gauge(
+            'azure_idle_resources_count',
+            'Number of idle resources',
+            ['service'],
+            registry=self.registry
+        )
+        
+        self.azure_underutilized_resources_count = Gauge(
+            'azure_underutilized_resources_count',
+            'Number of underutilized resources',
+            ['service'],
+            registry=self.registry
+        )
+        
+        self.azure_spot_eligible_count = Gauge(
+            'azure_spot_eligible_count',
+            'Number of VMs eligible for Azure Spot',
+            registry=self.registry
+        )
+        
+        self.azure_reserved_instance_coverage = Gauge(
+            'azure_reserved_instance_coverage',
+            'Azure Reserved Instance coverage percentage',
+            registry=self.registry
+        )
     
     def record_savings(self, provider: str, optimization_type: str, amount: float):
         """Record cost savings"""

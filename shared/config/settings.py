@@ -17,7 +17,7 @@ class DatabaseConfig:
     postgres_port: int = int(os.getenv('POSTGRES_PORT', '5432'))
     postgres_db: str = os.getenv('POSTGRES_DB', 'optiinfra')
     postgres_user: str = os.getenv('POSTGRES_USER', 'optiinfra')
-    postgres_password: str = os.getenv('POSTGRES_PASSWORD', 'password')
+    postgres_password: str = os.getenv('POSTGRES_PASSWORD', 'optiinfra_dev_password')
     
     # ClickHouse
     clickhouse_host: str = os.getenv('CLICKHOUSE_HOST', 'localhost')
@@ -114,6 +114,11 @@ class Settings:
     def is_development(self) -> bool:
         """Check if running in development"""
         return self.environment == 'development'
+    
+    @property
+    def database_url(self) -> str:
+        """Get database URL (alias for postgres_url)"""
+        return self.database.postgres_url
 
 
 # Global settings instance

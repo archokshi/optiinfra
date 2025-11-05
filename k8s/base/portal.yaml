@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portal-config
+  namespace: optiinfra
+data:
+  NEXT_PUBLIC_API_URL: "http://localhost:3000"
+  COST_AGENT_URL: "http://cost-agent:8001"
+  PERFORMANCE_AGENT_URL: "http://performance-agent:8002"
+  RESOURCE_AGENT_URL: "http://resource-agent:8003"
+  APPLICATION_AGENT_URL: "http://application-agent:8004"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: portal-secret
+  namespace: optiinfra
+type: Opaque
+stringData:
+  AUTH_SECRET: "optiinfra-secret-key-change-in-production"
+  AUTH_URL: "http://localhost:3000"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal
+  namespace: optiinfra
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portal
+  template:
+    metadata:
+      labels:
+        app: portal
+    spec:
+      containers:
+      - name: portal
+        image: optiinfra/portal:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: portal-config
+        - secretRef:
+            name: portal-secret
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portal
+  namespace: optiinfra
+spec:
+  selector:
+    app: portal
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: LoadBalancer

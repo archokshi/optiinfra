@@ -1,16 +1,21 @@
 # Application Agent
 
-**AI-powered quality monitoring agent for LLM infrastructure**
+**AI-powered quality monitoring and validation agent for LLM applications**
 
 ## Overview
 
-The Application Agent ensures quality and prevents regressions through:
-- LLM output quality monitoring
-- Hallucination detection
-- Toxic content detection
-- Quality baseline establishment
-- A/B testing validation
-- Auto-rollback on quality degradation
+The Application Agent monitors LLM application quality, detects regressions, validates changes, and provides AI-powered quality scoring using Groq's gpt-oss-20b model.
+
+### Key Features
+
+- **Quality Monitoring**: Track relevance, coherence, and hallucination metrics
+- **Regression Detection**: Baseline tracking and anomaly detection with severity levels
+- **Validation Engine**: A/B testing, approval workflows, and statistical analysis
+- **LangGraph Workflow**: Automated quality validation pipeline
+- **LLM Integration**: AI-powered quality scoring with Groq (gpt-oss-20b)
+- **Configuration Monitoring**: Parameter tracking and optimization recommendations
+- **Performance Testing**: Load testing with Locust
+- **Comprehensive APIs**: 44 REST endpoints for complete control
 
 ## Architecture
 

@@ -1,0 +1,46 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - heading "OptiInfra Dashboard" [level=1] [ref=e4]
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - heading "Cost Agent" [level=3] [ref=e7]
+        - generic [ref=e8]:
+          - generic [ref=e9]: "Status:"
+          - generic [ref=e10]: Active
+        - generic [ref=e11]:
+          - paragraph [ref=e12]: $12,450
+          - paragraph [ref=e13]: Monthly Cost
+      - generic [ref=e14]:
+        - heading "Performance Agent" [level=3] [ref=e15]
+        - generic [ref=e16]:
+          - generic [ref=e17]: "Status:"
+          - generic [ref=e18]: Active
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: 85ms
+          - paragraph [ref=e21]: P95 Latency
+      - generic [ref=e22]:
+        - heading "Resource Agent" [level=3] [ref=e23]
+        - generic [ref=e24]:
+          - generic [ref=e25]: "Status:"
+          - generic [ref=e26]: Active
+        - generic [ref=e27]:
+          - paragraph [ref=e28]: 78%
+          - paragraph [ref=e29]: GPU Utilization
+      - generic [ref=e30]:
+        - heading "Application Agent" [level=3] [ref=e31]
+        - generic [ref=e32]:
+          - generic [ref=e33]: "Status:"
+          - generic [ref=e34]: Active
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: 92%
+          - paragraph [ref=e37]: Quality Score
+    - generic [ref=e38]:
+      - heading "🚀 Dashboard Under Construction" [level=2] [ref=e39]
+      - paragraph [ref=e40]: This is a placeholder dashboard. Full dashboard components will be implemented in PHASE5-5.2.
+  - button "Open Next.js Dev Tools" [ref=e46] [cursor=pointer]:
+    - img [ref=e47]
+  - alert [ref=e50]
+```

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  performance-agent:
+    build: .
+    ports:
+      - "8002:8002"
+      - "9092:9092"
+    environment:
+      - PORT=8002
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+      - ORCHESTRATOR_URL=http://orchestrator:8080
+      - DATABASE_URL=postgresql://perf_user:perf_password@postgres:5432/performance_agent
+      - REDIS_URL=redis://redis:6379/1
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=performance_agent
+      - POSTGRES_USER=perf_user
+      - POSTGRES_PASSWORD=perf_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:6
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

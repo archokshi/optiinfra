@@ -1,95 +1,68 @@
 # OptiInfra Portal
 
-**Next.js 14 customer dashboard for OptiInfra**
+Modern Next.js 14 dashboard for monitoring and managing OptiInfra's multi-agent LLM optimization platform.
 
-## Overview
+## Features
 
-The Portal provides a modern web interface for:
-- Viewing all agent status and metrics
-- Cost, performance, resource, and application dashboards
-- Approving/rejecting agent recommendations
-- Viewing execution history
-- Real-time updates via WebSocket
+- Modern UI with Next.js 14 App Router
+- TypeScript for type safety
+- TailwindCSS for styling
+- Real-time agent monitoring
+- WebSocket integration (coming soon)
+- Dark mode support (coming soon)
+- Responsive design
 
-## Architecture
-
-```
-portal/
-├── src/
-│   ├── app/             # Next.js 14 app directory
-│   ├── components/      # React components
-│   ├── lib/             # Utilities and API clients
-│   └── types/           # TypeScript types
-├── public/
-│   ├── images/
-│   └── icons/
-├── package.json
-├── tsconfig.json
-├── next.config.js
-├── tailwind.config.js
-├── Dockerfile
-└── README.md
-```
-
-## Technology Stack
-
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: TailwindCSS
-- **Components**: shadcn/ui
-- **Charts**: Recharts
-- **Icons**: Lucide React
-- **Real-time**: WebSocket
-- **State**: React hooks + Context
-
-## Development
+## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 
-### Setup
-```bash
-cd portal
-npm install
-```
+### Installation
 
-### Run locally
 ```bash
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp env.example .env.local
+
+# Run development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Build for production
-```bash
-npm run build
-npm start
+## Project Structure
+
+```
+portal/
+├── app/              # Next.js App Router pages
+├── components/       # React components
+├── lib/              # Utilities and API client
+└── public/           # Static assets
 ```
 
-### Run tests
-```bash
-npm test
-```
+## Available Scripts
 
-## Pages
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
 
-- `/` - Overview dashboard
-- `/cost` - Cost optimization dashboard
-- `/performance` - Performance metrics dashboard
-- `/resource` - Resource utilization dashboard
-- `/application` - Application quality dashboard
-- `/recommendations` - Pending recommendations
-- `/history` - Execution history
+## Environment Variables
 
-## Configuration
+See `env.example` for required environment variables.
 
-Environment variables (`.env.local`):
-```
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_WS_URL=ws://localhost:8080
-```
+## Tech Stack
 
-## Deployment
+- **Framework**: Next.js 14
+- **Language**: TypeScript
+- **Styling**: TailwindCSS
+- **State**: React Hooks
+- **API**: Fetch API
 
-See [Deployment Guide](../docs/DEPLOYMENT.md) for production deployment instructions.
+## License
+
+Proprietary - OptiInfra

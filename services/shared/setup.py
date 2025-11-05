@@ -8,7 +8,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "sqlalchemy>=2.0.23",
-        "psycopg2-binary>=2.9.9",
+        "psycopg2-binary>=2.9.10",
         "redis>=5.0.1",
         "pydantic>=2.5.0",
         "pydantic-settings>=2.1.0",
@@ -16,5 +16,5 @@ setup(
         "tenacity>=8.2.3",
         "prometheus-client>=0.19.0",
     ],
-    python_requires=">=3.11",
+    python_requires=">=3.10",
 )

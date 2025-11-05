@@ -1,0 +1,14 @@
+apiVersion: v2
+name: optiinfra
+description: A Helm chart for OptiInfra - AI-Powered LLM Infrastructure Optimization
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - optiinfra
+  - llm
+  - optimization
+  - ai
+maintainers:
+  - name: OptiInfra Team
+    email: team@optiinfra.com

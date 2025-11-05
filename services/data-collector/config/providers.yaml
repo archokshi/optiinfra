@@ -1,0 +1,227 @@
+# Provider Configuration for Generic Collector
+# This file defines all supported cloud providers and their settings
+
+providers:
+  # ============================================
+  # Tier 1: Big 3 (Dedicated Collectors)
+  # ============================================
+  
+  aws:
+    enabled: true
+    collector_type: "dedicated"
+    collector_class: "AWSCollector"
+    requires_credentials: true
+    api_type: "sdk"
+    documentation: "https://aws.amazon.com/documentation/"
+  
+  gcp:
+    enabled: true
+    collector_type: "dedicated"
+    collector_class: "GCPCollector"
+    requires_credentials: true
+    api_type: "sdk"
+    documentation: "https://cloud.google.com/docs"
+  
+  azure:
+    enabled: true
+    collector_type: "dedicated"
+    collector_class: "AzureCollector"
+    requires_credentials: true
+    api_type: "sdk"
+    documentation: "https://docs.microsoft.com/azure"
+  
+  # ============================================
+  # Tier 2: GPU Clouds (Generic Collector)
+  # ============================================
+  
+  vultr:
+    enabled: true
+    collector_type: "generic"
+    category: "gpu_cloud"
+    api_url: "https://api.vultr.com"
+    api_type: "rest"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: 9400
+    documentation: "https://www.vultr.com/api/"
+    notes: "Primary demo provider"
+  
+  runpod:
+    enabled: true
+    collector_type: "generic"
+    category: "gpu_cloud"
+    api_url: "https://api.runpod.io/graphql"
+    api_type: "graphql"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: 9400
+    documentation: "https://docs.runpod.io/"
+    notes: "GraphQL API, GPU-focused"
+  
+  lambda_labs:
+    enabled: true
+    collector_type: "generic"
+    category: "gpu_cloud"
+    api_url: "https://cloud.lambdalabs.com/api/v1"
+    api_type: "rest"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: 9400
+    documentation: "https://cloud.lambdalabs.com/api/v1/docs"
+    notes: "GPU cloud for ML training"
+  
+  coreweave:
+    enabled: true
+    collector_type: "generic"
+    category: "gpu_cloud"
+    api_url: "https://api.coreweave.com"
+    api_type: "kubernetes"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: 9400
+    documentation: "https://docs.coreweave.com/"
+    notes: "Kubernetes-based GPU cloud"
+  
+  paperspace:
+    enabled: true
+    collector_type: "generic"
+    category: "gpu_cloud"
+    api_url: "https://api.paperspace.io"
+    api_type: "rest"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: 9400
+    documentation: "https://docs.paperspace.com/"
+    notes: "GPU cloud for ML/AI"
+  
+  # ============================================
+  # Tier 2: General Compute (Generic Collector)
+  # ============================================
+  
+  digitalocean:
+    enabled: true
+    collector_type: "generic"
+    category: "general_compute"
+    api_url: "https://api.digitalocean.com"
+    api_type: "rest"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: null
+    documentation: "https://docs.digitalocean.com/reference/api/"
+    notes: "Popular cloud for developers"
+  
+  linode:
+    enabled: true
+    collector_type: "generic"
+    category: "general_compute"
+    api_url: "https://api.linode.com"
+    api_type: "rest"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: null
+    documentation: "https://www.linode.com/docs/api/"
+    notes: "Now part of Akamai"
+  
+  hetzner:
+    enabled: true
+    collector_type: "generic"
+    category: "general_compute"
+    api_url: "https://api.hetzner.cloud"
+    api_type: "rest"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: null
+    documentation: "https://docs.hetzner.cloud/"
+    notes: "European hosting provider"
+  
+  ovh:
+    enabled: true
+    collector_type: "generic"
+    category: "general_compute"
+    api_url: "https://api.ovh.com"
+    api_type: "rest"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: null
+    documentation: "https://api.ovh.com/"
+    notes: "European cloud provider"
+  
+  # ============================================
+  # Tier 2: Self-Hosted (Generic Collector)
+  # ============================================
+  
+  on_premises:
+    enabled: true
+    collector_type: "generic"
+    category: "self_hosted"
+    api_url: null
+    api_type: null
+    requires_api_key: false
+    prometheus_port: 9090
+    dcgm_port: 9400
+    prometheus_only: true
+    documentation: null
+    notes: "Private datacenter, Prometheus-only mode"
+  
+  kubernetes:
+    enabled: true
+    collector_type: "generic"
+    category: "self_hosted"
+    api_url: "https://kubernetes.default.svc"
+    api_type: "kubernetes"
+    requires_api_key: true
+    prometheus_port: 9090
+    dcgm_port: 9400
+    documentation: "https://kubernetes.io/docs/reference/kubernetes-api/"
+    notes: "Kubernetes cluster"
+  
+  docker:
+    enabled: true
+    collector_type: "generic"
+    category: "self_hosted"
+    api_url: "http://localhost:2375"
+    api_type: "rest"
+    requires_api_key: false
+    prometheus_port: 9090
+    dcgm_port: null
+    documentation: "https://docs.docker.com/engine/api/"
+    notes: "Docker containers"
+
+# ============================================
+# Collection Settings
+# ============================================
+
+collection:
+  default_frequency_minutes: 15
+  timeout_seconds: 30
+  retry_attempts: 3
+  batch_size: 10
+  
+  # Prometheus queries
+  prometheus:
+    enabled: true
+    scrape_interval_seconds: 60
+    query_timeout_seconds: 10
+  
+  # DCGM GPU metrics
+  dcgm:
+    enabled: true
+    scrape_interval_seconds: 60
+    query_timeout_seconds: 10
+  
+  # Provider APIs
+  api:
+    enabled: true
+    call_interval_minutes: 60
+    timeout_seconds: 30
+
+# ============================================
+# Feature Flags
+# ============================================
+
+features:
+  multi_provider_collection: true
+  parallel_collection: true
+  automatic_retry: true
+  metric_caching: true
+  cache_ttl_seconds: 300

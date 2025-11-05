@@ -1,0 +1,38 @@
+{
+  "account": {
+    "account_id": "ALPESHKUMAR CHOKSHI",
+    "email": "alpesh.chokshi@gmail.com",
+    "balance": -299.99,
+    "pending_charges": 0.0,
+    "last_payment_date": "2025-09-28T16:46:11+00:00",
+    "last_payment_amount": -50.0
+  },
+  "pending_charges": {
+    "pending_charges": 0.0,
+    "currency": "USD",
+    "billing_period_start": null,
+    "billing_period_end": null
+  },
+  "instances": [],
+  "cost_analysis": {
+    "timestamp": "2025-10-22T19:03:11.716079+00:00",
+    "cloud_provider": "vultr",
+    "account_balance": -299.99,
+    "current_monthly_spend": 0.0,
+    "instance_count": 0,
+    "cost_breakdown": {
+      "gpu_cost": 0,
+      "cpu_cost": 0,
+      "gpu_percentage": 0
+    },
+    "waste_analysis": {
+      "idle_instances": 0,
+      "idle_cost": 0,
+      "idle_percentage": 0
+    },
+    "recommendations": [],
+    "total_estimated_savings": 0,
+    "savings_percentage": 0
+  },
+  "collected_at": "2025-10-22T19:03:11.716079+00:00"
+}
