@@ -5,7 +5,7 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # LangGraph (from P-04, updated in PHASE1-1.5 - using latest compatible versions)
-langgraph>=0.2.0,<0.3.0
+langgraph>=0.2.0,<1.1.0
 langchain>=0.2.7,<0.3.0
 langchain-core>=0.2.43,<0.4.0
 langchain-openai>=0.1.7,<0.2.0
