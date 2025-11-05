@@ -322,7 +322,7 @@ The Data Collector is a **separate concern**:
 All 5 integration points use the same configuration:
 
 ```bash
-GROQ_API_KEY=***REMOVED***
+GROQ_API_KEY=your-groq-api-key-here
 GROQ_MODEL=openai/gpt-oss-20b
 LLM_ENABLED=true
 LLM_TIMEOUT=30

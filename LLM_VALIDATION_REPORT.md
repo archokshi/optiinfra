@@ -26,7 +26,7 @@ Successfully completed end-to-end validation of OptiInfra's LLM integration with
 
 ### 1.1 API Key Validation
 
-**API Key:** `***REMOVED***`
+**API Key:** `your-groq-api-key-here`
 
 **Test Results:**
 ```
@@ -433,7 +433,7 @@ LIMIT 6
 ### Environment Variables (Required):
 ```bash
 # Groq API Configuration
-GROQ_API_KEY=***REMOVED***
+GROQ_API_KEY=your-groq-api-key-here
 GROQ_MODEL=openai/gpt-oss-20b
 LLM_ENABLED=true
 LLM_TIMEOUT=30

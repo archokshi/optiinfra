@@ -11,8 +11,8 @@ from datetime import datetime
 import json
 
 # Set environment variables
-os.environ['VULTR_API_KEY'] = '***REMOVED***'
-os.environ['GROQ_API_KEY'] = '***REMOVED***'
+os.environ['VULTR_API_KEY'] = os.getenv('VULTR_API_KEY', 'your-vultr-api-key-here')
+os.environ['GROQ_API_KEY'] = os.getenv('GROQ_API_KEY', 'your-groq-api-key-here')
 os.environ['GROQ_MODEL'] = 'gpt-oss-20b'
 
 # Add cost-agent to path
