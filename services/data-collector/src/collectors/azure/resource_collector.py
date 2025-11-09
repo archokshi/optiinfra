@@ -5,7 +5,6 @@ Phase 6.5: Multi-Cloud Support
 import logging
 from typing import List
 from datetime import datetime
-import json
 
 from ..base import BaseCollector
 from ...models.metrics import ResourceMetric, CollectionResult
@@ -91,11 +90,11 @@ class AzureResourceCollector(BaseCollector):
                 location = vm.get('location', 'unknown')
                 vm_size = vm.get('vm_size', 'unknown')
                 
-                metadata = json.dumps({
+                metadata = {
                     "vm_size": vm_size,
                     "location": location,
                     "subscription_id": self.subscription_id
-                })
+                }
                 
                 metric = ResourceMetric(
                     timestamp=datetime.now(),

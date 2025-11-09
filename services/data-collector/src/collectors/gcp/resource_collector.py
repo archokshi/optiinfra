@@ -5,7 +5,6 @@ Phase 6.5: Multi-Cloud Support
 import logging
 from typing import List
 from datetime import datetime
-import json
 
 from ..base import BaseCollector
 from ...models.metrics import ResourceMetric, CollectionResult
@@ -89,11 +88,11 @@ class GCPResourceCollector(BaseCollector):
                 machine_type = instance.get('machine_type', 'unknown')
                 zone = instance.get('zone', 'unknown')
                 
-                metadata = json.dumps({
+                metadata = {
                     "machine_type": machine_type,
                     "zone": zone,
                     "project_id": self.project_id
-                })
+                }
                 
                 metric = ResourceMetric(
                     timestamp=datetime.now(),

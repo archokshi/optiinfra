@@ -1,0 +1,492 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 90
+              },
+              {
+                "color": "red",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent",
+          "max": 100,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "score",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  score as service_health_percent\nFROM optiinfra_metrics.application_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'health'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "application_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🏥 SERVICE HEALTH (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "Poor"
+                },
+                "50": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "Fair"
+                },
+                "80": {
+                  "color": "green",
+                  "index": 2,
+                  "text": "Good"
+                },
+                "95": {
+                  "color": "blue",
+                  "index": 3,
+                  "text": "Excellent"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              },
+              {
+                "color": "blue",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "short",
+          "max": 100,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "score",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  score as quality_score\nFROM optiinfra_metrics.application_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'quality'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "application_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⭐ QUALITY SCORE",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "max": 100,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 0,
+          "group": [],
+          "metricColumn": "score",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp as time,\n  score as service_health\nFROM optiinfra_metrics.application_metrics\nWHERE timestamp >= now() - INTERVAL 48 HOUR\n  AND provider = 'runpod'\n  AND metric_type = 'health'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "application_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📈 SERVICE HEALTH TREND (Last 48 Hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short",
+          "max": 100,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 0,
+          "group": [],
+          "metricColumn": "score",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp as time,\n  score as quality_score\nFROM optiinfra_metrics.application_metrics\nWHERE timestamp >= now() - INTERVAL 48 HOUR\n  AND provider = 'runpod'\n  AND metric_type = 'quality'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "application_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⭐ QUALITY SCORE TREND (Last 48 Hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "background"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 5,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": ["sum"],
+          "countRows": false
+        }
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "metric_type",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  '🏥 Health Status' as Category,\n  'Service health: ' || (SELECT score FROM optiinfra_metrics.application_metrics WHERE metric_type = 'health' ORDER BY timestamp DESC LIMIT 1) || '% - ' || CASE WHEN (SELECT score FROM optiinfra_metrics.application_metrics WHERE metric_type = 'health' ORDER BY timestamp DESC LIMIT 1) >= 95 THEN 'Excellent' WHEN (SELECT score FROM optiinfra_metrics.application_metrics WHERE metric_type = 'health' ORDER BY timestamp DESC LIMIT 1) >= 90 THEN 'Good' ELSE 'Needs attention' END as Status\nUNION ALL\nSELECT\n  '⭐ Quality Assessment' as Category,\n  'Quality score: ' || (SELECT score FROM optiinfra_metrics.application_metrics WHERE metric_type = 'quality' ORDER BY timestamp DESC LIMIT 1) || ' - ' || CASE WHEN (SELECT score FROM optiinfra_metrics.application_metrics WHERE metric_type = 'quality' ORDER BY timestamp DESC LIMIT 1) >= 80 THEN 'High quality' WHEN (SELECT score FROM optiinfra_metrics.application_metrics WHERE metric_type = 'quality' ORDER BY timestamp DESC LIMIT 1) >= 50 THEN 'Fair quality' ELSE 'Poor quality' END as Status\nUNION ALL\nSELECT\n  '🔧 Service Status' as Category,\n  'Application: VLLM Inference Service - ' || CASE WHEN (SELECT score FROM optiinfra_metrics.application_metrics WHERE metric_type = 'health' ORDER BY timestamp DESC LIMIT 1) >= 90 THEN 'Running optimally' ELSE 'Performance issues detected' END as Status\nUNION ALL\nSELECT\n  '📊 Data Collection' as Category,\n  'Last update: ' || (SELECT toDateTime(timestamp) FROM optiinfra_metrics.application_metrics ORDER BY timestamp DESC LIMIT 1) || ' - Collection active' as Status",
+          "refId": "A",
+          "table": "application_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📋 APPLICATION INSIGHTS",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "runpod",
+    "application",
+    "service"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-48h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Los_Angeles",
+  "title": "RUNPOD APPLICATION MONITOR - GPU Instance",
+  "uid": "runpod-application-working",
+  "version": 1,
+  "weekStart": ""
+}

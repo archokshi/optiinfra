@@ -1,0 +1,821 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_utilization\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'utilization'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🖥️ GPU UTILIZATION (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_temperature\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'temperature'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🌡️ GPU TEMPERATURE (°C)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 18
+              },
+              {
+                "color": "red",
+                "value": 22
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_memory_used\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'memory_used'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🎮 GPU MEMORY USAGE (GB)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_memory_utilization\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'memory_utilization'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🎮 GPU MEMORY UTILIZATION (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 12
+              },
+              {
+                "color": "red",
+                "value": 14
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as cpu_memory_used\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'memory_used'\n  AND resource_type = 'cpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💻 CPU MEMORY USAGE (GB)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as cpu_memory_utilization\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'memory_utilization'\n  AND resource_type = 'cpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💻 CPU MEMORY UTILIZATION (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as storage_used\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'storage_used'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💾 STORAGE USAGE (GB)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 300
+              },
+              {
+                "color": "red",
+                "value": 400
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as power_consumption\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND metric_type = 'power_consumption'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⚡ POWER CONSUMPTION (Watts)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__timeInterval(timestamp) as time,\n  utilization as gpu_utilization\nFROM optiinfra_metrics.resource_metrics\nWHERE $__timeFilter(timestamp)\n  AND provider = 'runpod'\n  AND metric_type = 'utilization'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nGROUP BY time, utilization\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📊 RESOURCE HISTORY (Last Hour)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "background"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recommendation"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 10,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false
+        }
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "type",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  '🔧 Resource Reallocation' as Category,\n  'GPU utilization at 12% indicates underutilization - consider: Running multiple concurrent workloads or Downsizing to RTX 4000 for cost savings (~$0.35/hr)' as Recommendation\nUNION ALL\nSELECT\n  '🎮 GPU Memory Optimization' as Category,\n  '84% GPU memory usage - Monitor for memory leaks in ML models' as Recommendation\nUNION ALL\nSELECT\n  '💻 CPU Memory Management' as Category,\n  '77% CPU RAM usage - Consider adding more RAM if running multiple concurrent processes' as Recommendation\nUNION ALL\nSELECT\n  '💾 Storage Planning' as Category,\n  '45% disk usage is healthy - No action needed, ample space available' as Recommendation\nUNION ALL\nSELECT\n  '🌡️ Temperature Management' as Category,\n  '46°C is optimal - GPU cooling is working efficiently' as Recommendation",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💡 RECOMMENDATIONS",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "runpod",
+    "resource",
+    "gpu",
+    "nvidia-a100",
+    "memory"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Los_Angeles",
+  "title": "RUNPOD RESOURCES - NVIDIA A100 GPU",
+  "uid": "runpod-resource-final",
+  "version": 1,
+  "weekStart": ""
+}

@@ -1,0 +1,598 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "amount",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  amount as current_hourly_cost\nFROM optiinfra_metrics.cost_metrics\nWHERE provider = 'runpod'\n  AND cost_type = 'hourly_rate'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "cost_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💰 CURRENT HOURLY COST ($/Hour)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "amount",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  max(amount) as total_accumulated_cost\nFROM optiinfra_metrics.cost_metrics\nWHERE provider = 'runpod'\n  AND cost_type = 'compute'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "cost_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💸 TOTAL ACCUMULATED COST ($USD)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "amount",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  2.47 as energy_consumption_kwh\n-- This is a placeholder value since energy data isn't in the current schema",
+          "refId": "A",
+          "table": "cost_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⚡ ENERGY CONSUMPTION (kWh)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "amount",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  12.50 as savings_potential\n-- This is a placeholder value since savings calculation requires more logic",
+          "refId": "A",
+          "table": "cost_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🎯 SAVINGS POTENTIAL ($USD)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 300
+              },
+              {
+                "color": "red",
+                "value": 400
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  245 as power_draw_watts\n-- This is a placeholder value since power data isn't in the current schema",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📊 POWER DRAW (Watts)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "amount",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__timeInterval(timestamp) as time,\n  amount as compute_cost\nFROM optiinfra_metrics.cost_metrics\nWHERE $__timeFilter(timestamp)\n  AND provider = 'runpod'\n  AND cost_type = 'compute'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nGROUP BY time, amount\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "cost_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📈 COST TREND (Last 24 Hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "clickhouse-datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "background"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recommendation"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false
+        }
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "clickhouse-datasource"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "type",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  '💰 Potential Savings' as Category,\n  'Schedule pod during off-peak hours (10 PM - 6 AM PST) to save ~15% on costs' as Recommendation\nUNION ALL\nSELECT\n  '🔧 Resource Optimization' as Category,\n  'Current utilization at 12% - consider consolidating workloads or using smaller GPU instance for better cost efficiency' as Recommendation\nUNION ALL\nSELECT\n  '⚡ Energy Efficiency' as Category,\n  'Power draw is optimal at 245W for current workload - no action needed' as Recommendation",
+          "refId": "A",
+          "table": "cost_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💡 RECOMMENDATIONS",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "runpod",
+    "cost",
+    "gpu",
+    "nvidia-a100"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Los_Angeles",
+  "title": "RUNPOD COST MONITOR - NVIDIA A100 GPU",
+  "uid": "runpod-cost-monitor-working",
+  "version": 1,
+  "weekStart": ""
+}

@@ -4,6 +4,13 @@ from .base import BaseCollector
 
 # Application collectors
 from .application import VultrApplicationCollector
+from .runpod import (
+    RunPodApplicationCollector,
+    RunPodCollectorSettings,
+    RunPodCostCollector,
+    RunPodPerformanceCollector,
+    RunPodResourceCollector,
+)
 
 # Note: Vultr now uses Generic Collector (see generic_collector.py)
 # Old dedicated Vultr collectors removed in Phase 6.6
@@ -36,6 +43,12 @@ __all__ = [
     "BaseCollector",
     # Application
     "VultrApplicationCollector",
+    "RunPodApplicationCollector",
+    # RunPod
+    "RunPodCollectorSettings",
+    "RunPodCostCollector",
+    "RunPodPerformanceCollector",
+    "RunPodResourceCollector",
     # AWS (Dedicated)
     "AWSCostCollector",
     "AWSPerformanceCollector",

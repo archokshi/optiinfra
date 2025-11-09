@@ -5,6 +5,12 @@ import { AgentStatusCard } from "@/components/dashboard/agent-status-card";
 import { MetricsChart } from "@/components/dashboard/metrics-chart";
 import { RecommendationCard } from "@/components/dashboard/recommendation-card";
 import type { Agent, Recommendation, DashboardData } from "@/lib/types";
+import {
+  asRunPodPlaceholder,
+  formatDateTime,
+  formatNumber,
+  isRunPodDashboardSection,
+} from "@/lib/runpod";
 
 class PerformanceAgentClient {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T | null> {
@@ -141,6 +147,54 @@ export default function PerformanceAgentPage() {
     throughput: (item.latency || 0) > 0 ? 1000 / (item.latency || 1) : 0,
   }));
 
+  const runpodMetrics = dashboardData.metrics?.runpod;
+  const runpodData = isRunPodDashboardSection(runpodMetrics) ? runpodMetrics : null;
+  const runpodStatus = !runpodData ? asRunPodPlaceholder(runpodMetrics) : null;
+  const runpodJobStats = runpodData?.job_stats ?? [];
+  const runpodJobSeries = runpodData?.job_timeseries ?? [];
+  const runpodApplicationSummary = runpodData?.application_summary;
+
+  const aggregatedSeries = runpodJobSeries.reduce<
+    Record<
+      string,
+      {
+        total_jobs: number;
+        failed_jobs: number;
+        throughputTotal: number;
+        observations: number;
+      }
+    >
+  >((acc, point) => {
+    const bucket = point.timestamp;
+    const entry = acc[bucket] || {
+      total_jobs: 0,
+      failed_jobs: 0,
+      throughputTotal: 0,
+      observations: 0,
+    };
+    entry.total_jobs += point.total_jobs ?? 0;
+    entry.failed_jobs += point.failed_jobs ?? 0;
+    if (point.avg_throughput !== undefined && !Number.isNaN(point.avg_throughput)) {
+      entry.throughputTotal += point.avg_throughput;
+      entry.observations += 1;
+    }
+    acc[bucket] = entry;
+    return acc;
+  }, {});
+
+  const runpodChartData = Object.entries(aggregatedSeries)
+    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+    .map(([timestamp, value]) => ({
+      timestamp: new Date(timestamp).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      jobs: value.total_jobs,
+      failed: value.failed_jobs,
+      throughput:
+        value.observations > 0 ? value.throughputTotal / value.observations : 0,
+    }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -191,6 +245,150 @@ export default function PerformanceAgentPage() {
         />
       </div>
 
+      {runpodData ? (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">RunPod Serverless Performance</h2>
+            <p className="text-gray-500 mt-1">
+              Real-time execution metrics captured from RunPod job telemetry
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-500">Jobs Processed (6h)</p>
+              <p className="mt-2 text-2xl font-semibold text-gray-900">
+                {formatNumber(runpodApplicationSummary?.total_jobs ?? 0)}
+              </p>
+              <p className="mt-2 text-xs text-gray-400">
+                Last update {formatDateTime(runpodApplicationSummary?.last_updated)}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-500">Failed Jobs</p>
+              <p className="mt-2 text-2xl font-semibold text-rose-600">
+                {formatNumber(runpodApplicationSummary?.failed_jobs ?? 0)}
+              </p>
+              <p className="mt-2 text-xs text-gray-400">Detected within the lookback window</p>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-500">Active Endpoints</p>
+              <p className="mt-2 text-2xl font-semibold text-indigo-600">
+                {formatNumber(runpodApplicationSummary?.active_endpoints ?? 0)}
+              </p>
+              <p className="mt-2 text-xs text-gray-400">
+                Reporting job telemetry in the last 6 hours
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <MetricsChart
+              title="RunPod Job Throughput"
+              data={runpodChartData}
+              dataKeys={[{ key: "throughput", color: "#2563eb", label: "Throughput (avg req/s)" }]}
+              type="area"
+            />
+            <MetricsChart
+              title="RunPod Job Volume vs Failures"
+              data={runpodChartData}
+              dataKeys={[
+                { key: "jobs", color: "#16a34a", label: "Jobs" },
+                { key: "failed", color: "#dc2626", label: "Failed" },
+              ]}
+              type="line"
+            />
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900">Endpoint Execution Metrics</h3>
+            {runpodJobStats.length > 0 ? (
+              <div className="mt-4 overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead>
+                    <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      <th scope="col" className="px-4 py-2">Endpoint</th>
+                      <th scope="col" className="px-4 py-2">Jobs</th>
+                      <th scope="col" className="px-4 py-2">Failed</th>
+                      <th scope="col" className="px-4 py-2">Avg Exec (ms)</th>
+                      <th scope="col" className="px-4 py-2">P95 Exec (ms)</th>
+                      <th scope="col" className="px-4 py-2">Avg Throughput</th>
+                      <th scope="col" className="px-4 py-2">Tokens Out</th>
+                      <th scope="col" className="px-4 py-2">Last Observed</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {runpodJobStats.map((row) => (
+                      <tr key={row.endpoint_id} className="hover:bg-gray-50">
+                        <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                          {row.endpoint_id}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.total_jobs)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.failed_jobs)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.avg_execution_ms, { maximumFractionDigits: 1 })}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.p95_execution_ms, { maximumFractionDigits: 1 })}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.avg_throughput, { maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.total_output_tokens)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatDateTime(row.last_observed)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-gray-500">
+                No RunPod jobs have been processed within the recent lookback window.
+              </p>
+            )}
+          </div>
+
+          {runpodApplicationSummary?.status_counts && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900">Job Status Breakdown</h3>
+              <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                {Object.entries(runpodApplicationSummary.status_counts).map(([status, count]) => (
+                  <div key={status} className="rounded border border-gray-200 p-4">
+                    <dt className="text-gray-500 uppercase tracking-wide">
+                      {status.replace(/_/g, " ")}
+                    </dt>
+                    <dd className="mt-2 text-lg font-semibold text-gray-900">
+                      {formatNumber(count)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+        </div>
+      ) : runpodStatus ? (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-blue-800">
+            RunPod metrics status: {runpodStatus.status}.
+            {runpodStatus.note ? ` ${runpodStatus.note}` : ""}
+          </p>
+        </div>
+      ) : runpodMetrics === undefined ? null : (
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <p className="text-slate-700">
+            RunPod performance metrics will appear once the collector ingests the first job
+            snapshots.
+          </p>
+        </div>
+      )}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
           Performance Optimization Recommendations

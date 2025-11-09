@@ -84,8 +84,14 @@ SUPPORTED_PROVIDERS: Dict[str, Dict[str, Any]] = {
         "config_keys": {
             "api_key": "RUNPOD_API_KEY",
             "api_url": "RUNPOD_API_URL",
+            "graphql_url": "RUNPOD_GRAPHQL_URL",
+            "rest_url": "RUNPOD_REST_URL",
+            "serverless_url": "RUNPOD_SERVERLESS_URL",
             "prometheus_url": "RUNPOD_PROMETHEUS_URL",
             "dcgm_url": "RUNPOD_DCGM_URL",
+            "collection_interval_seconds": "RUNPOD_COLLECTION_INTERVAL_SECONDS",
+            "health_poll_seconds": "RUNPOD_HEALTH_POLL_SECONDS",
+            "job_retention_days": "RUNPOD_JOB_RETENTION_DAYS",
         },
         "requirements": [
             {"field": "prometheus_url", "label": "Prometheus URL", "required": True},

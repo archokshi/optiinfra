@@ -1,0 +1,602 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_temperature_celsius\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND resource_type = 'gpu_temperature'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🌡️ GPU TEMPERATURE (°C)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
+            ]
+          },
+          "unit": "watts"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_power_watts\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND resource_type = 'gpu_power'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⚡ GPU POWER (Watts)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_utilization_percent\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🎯 GPU UTILIZATION (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_memory_used_percent\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND resource_type = 'gpu_memory'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💾 GPU MEMORY USED (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 0,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp as time,\n  utilization as gpu_temperature\nFROM optiinfra_metrics.resource_metrics\nWHERE timestamp >= now() - INTERVAL 48 HOUR\n  AND provider = 'runpod'\n  AND resource_type = 'gpu_temperature'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📈 GPU TEMPERATURE TREND (Last 48 Hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "watts"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 0,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp as time,\n  utilization as gpu_power\nFROM optiinfra_metrics.resource_metrics\nWHERE timestamp >= now() - INTERVAL 48 HOUR\n  AND provider = 'runpod'\n  AND resource_type = 'gpu_power'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⚡ GPU POWER CONSUMPTION TREND (Last 48 Hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "background"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 7,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": ["sum"],
+          "countRows": false
+        }
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "resource_type",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  '🌡️ Thermal Status' as Category,\n  'GPU temperature: ' || (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_temperature' ORDER BY timestamp DESC LIMIT 1) || '°C - ' || CASE WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_temperature' ORDER BY timestamp DESC LIMIT 1) < 70 THEN 'Optimal' WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_temperature' ORDER BY timestamp DESC LIMIT 1) < 85 THEN 'Warm' ELSE 'Hot - Monitor closely' END as Status\nUNION ALL\nSELECT\n  '⚡ Power Efficiency' as Category,\n  'Current power draw: ' || (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_power' ORDER BY timestamp DESC LIMIT 1) || 'W - ' || CASE WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_power' ORDER BY timestamp DESC LIMIT 1) < 100 THEN 'Efficient' WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_power' ORDER BY timestamp DESC LIMIT 1) < 200 THEN 'Moderate' ELSE 'High consumption' END as Status\nUNION ALL\nSELECT\n  '💾 Memory Usage' as Category,\n  'GPU memory: ' || (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_memory' ORDER BY timestamp DESC LIMIT 1) || '% used - ' || CASE WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_memory' ORDER BY timestamp DESC LIMIT 1) < 70 THEN 'Available' WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_memory' ORDER BY timestamp DESC LIMIT 1) < 90 THEN 'Moderate' ELSE 'High usage' END as Status\nUNION ALL\nSELECT\n  '🎯 Utilization Analysis' as Category,\n  'GPU utilization: ' || (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu' ORDER BY timestamp DESC LIMIT 1) || '% - ' || CASE WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu' ORDER BY timestamp DESC LIMIT 1) < 20 THEN 'Underutilized' WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu' ORDER BY timestamp DESC LIMIT 1) < 80 THEN 'Optimal' ELSE 'High utilization' END as Status",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📋 RESOURCE INSIGHTS",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "runpod",
+    "resource",
+    "gpu"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-48h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Los_Angeles",
+  "title": "RUNPOD RESOURCE MONITOR - GPU Instance",
+  "uid": "runpod-resource-fixed",
+  "version": 1,
+  "weekStart": ""
+}

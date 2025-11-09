@@ -46,9 +46,15 @@ class Config:
     # RunPod
     RUNPOD_ENABLED = os.getenv("RUNPOD_ENABLED", "false").lower() == "true"
     RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY", "")
-    RUNPOD_API_URL = os.getenv("RUNPOD_API_URL", "https://api.runpod.io/graphql")
+    RUNPOD_GRAPHQL_URL = os.getenv("RUNPOD_GRAPHQL_URL", "https://api.runpod.io/graphql")
+    RUNPOD_REST_URL = os.getenv("RUNPOD_REST_URL", "https://rest.runpod.io/v1")
+    RUNPOD_SERVERLESS_URL = os.getenv("RUNPOD_SERVERLESS_URL", "https://api.runpod.ai/v2")
+    RUNPOD_API_URL = os.getenv("RUNPOD_API_URL", RUNPOD_GRAPHQL_URL)
     RUNPOD_PROMETHEUS_URL = os.getenv("RUNPOD_PROMETHEUS_URL", "")
     RUNPOD_DCGM_URL = os.getenv("RUNPOD_DCGM_URL", "")
+    RUNPOD_COLLECTION_INTERVAL_SECONDS = int(os.getenv("RUNPOD_COLLECTION_INTERVAL_SECONDS", "300"))
+    RUNPOD_HEALTH_POLL_SECONDS = int(os.getenv("RUNPOD_HEALTH_POLL_SECONDS", "120"))
+    RUNPOD_JOB_RETENTION_DAYS = int(os.getenv("RUNPOD_JOB_RETENTION_DAYS", "90"))
     
     # Lambda Labs
     LAMBDA_LABS_ENABLED = os.getenv("LAMBDA_LABS_ENABLED", "false").lower() == "true"

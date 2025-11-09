@@ -4,6 +4,7 @@ Phase 6.3: Cost Agent Refactor
 
 This replaces the direct cloud API collectors with ClickHouse readers
 """
+import json
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
@@ -144,6 +145,40 @@ class CostReader:
         except Exception as e:
             logger.error(f"Failed to get latest costs: {e}", exc_info=True)
             return []
+
+    def get_runpod_billing_summary(self, customer_id: str, days: int = 30) -> List[Dict[str, Any]]:
+        """Return aggregated RunPod billing snapshots from the daily view."""
+
+        query = """
+            SELECT
+                snapshot_date,
+                avg_spend_per_hr,
+                lifetime_spend,
+                balance,
+                spend_breakdown_json
+            FROM runpod_billing_daily
+            WHERE customer_id = %(customer_id)s
+              AND snapshot_date >= %(start_date)s
+            ORDER BY snapshot_date DESC
+        """
+        params = {
+            "customer_id": customer_id,
+            "start_date": (datetime.now() - timedelta(days=days)).date().isoformat(),
+        }
+
+        try:
+            rows = self.reader.execute_query(query, params)
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.warning("RunPod billing summary query failed: %s", exc)
+            return []
+
+        for row in rows:
+            raw_breakdown = row.pop("spend_breakdown_json", "{}")
+            try:
+                row["spend_breakdown"] = json.loads(raw_breakdown or "{}")
+            except json.JSONDecodeError:
+                row["spend_breakdown"] = {}
+        return rows
     
     def get_cost_trends(
         self,

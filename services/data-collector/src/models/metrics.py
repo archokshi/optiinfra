@@ -92,7 +92,7 @@ class ResourceMetric(BaseModel):
     utilization: float = 0.0
     capacity: float = 0.0
     unit: str = ""
-    metadata: Optional[str] = None  # JSON string for complex data
+    metadata: Optional[Dict[str, Any]] = None  # Additional context per metric
     
     class Config:
         use_enum_values = True

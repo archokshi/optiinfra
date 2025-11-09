@@ -1,0 +1,752 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "max": 100,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_utilization_percent\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🎯 GPU UTILIZATION (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_temperature_celsius\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND resource_type = 'gpu_temperature'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🌡️ GPU TEMPERATURE (°C)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  utilization as gpu_memory_used_percent\nFROM optiinfra_metrics.resource_metrics\nWHERE provider = 'runpod'\n  AND resource_type = 'gpu_memory'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "💾 GPU MEMORY USED (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "tokens"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "metric_value",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  metric_value as throughput_tokens_per_second\nFROM optiinfra_metrics.performance_metrics\nWHERE provider = 'runpod'\n  AND metric_name = 'throughput'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "performance_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⚡ Throughput (Tokens/Second)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1000
+              },
+              {
+                "color": "red",
+                "value": 10000
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "metric_value",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  metric_value as total_tokens_generated\nFROM optiinfra_metrics.performance_metrics\nWHERE provider = 'runpod'\n  AND metric_name = 'tokens_generated'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "performance_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "🔤 Total Tokens Generated",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "metric_value",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  metric_value as latency_p95_ms\nFROM optiinfra_metrics.performance_metrics\nWHERE provider = 'runpod'\n  AND metric_name = 'request_latency_p95'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY timestamp DESC\nLIMIT 1",
+          "refId": "A",
+          "table": "performance_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "⏱️ Latency p95(ms)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 0,
+          "group": [],
+          "metricColumn": "utilization",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp as time,\n  utilization as gpu_utilization\nFROM optiinfra_metrics.resource_metrics\nWHERE timestamp >= now() - INTERVAL 48 HOUR\n  AND provider = 'runpod'\n  AND resource_type = 'gpu'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📈 GPU UTILIZATION TREND (Last 48 Hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "tokens"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 0,
+          "group": [],
+          "metricColumn": "metric_value",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp as time,\n  metric_value as throughput_tokens_per_second\nFROM optiinfra_metrics.performance_metrics\nWHERE timestamp >= now() - INTERVAL 48 HOUR\n  AND provider = 'runpod'\n  AND metric_name = 'throughput'\n  AND customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'\nORDER BY time ASC\nLIMIT 1000",
+          "refId": "A",
+          "table": "performance_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📊 THROUGHPUT TREND (Tokens/Second - Last 48 Hours)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "clickhouse",
+        "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "background"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 9,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": ["sum"],
+          "countRows": false
+        }
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "clickhouse",
+            "uid": "ab7d2b42-d51f-46fc-9e43-b560d26e74cf"
+          },
+          "format": 1,
+          "group": [],
+          "metricColumn": "resource_type",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  '🎯 Performance Status' as Category,\n  'GPU utilization: ' || (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu' ORDER BY timestamp DESC LIMIT 1) || '% - ' || CASE WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu' ORDER BY timestamp DESC LIMIT 1) > 50 THEN 'High load' ELSE 'Idle/Normal' END as Status\nUNION ALL\nSELECT\n  '🌡️ Thermal Status' as Category,\n  'GPU temperature: ' || (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_temperature' ORDER BY timestamp DESC LIMIT 1) || '°C - ' || CASE WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_temperature' ORDER BY timestamp DESC LIMIT 1) < 70 THEN 'Optimal' WHEN (SELECT utilization FROM optiinfra_metrics.resource_metrics WHERE resource_type = 'gpu_temperature' ORDER BY timestamp DESC LIMIT 1) < 85 THEN 'Warm' ELSE 'Hot' END as Status\nUNION ALL\nSELECT\n  '⚡ Throughput Analysis' as Category,\n  'Current throughput: ' || (SELECT metric_value FROM optiinfra_metrics.performance_metrics WHERE metric_name = 'throughput' ORDER BY timestamp DESC LIMIT 1) || ' tokens/second' as Status\nUNION ALL\nSELECT\n  '🔤 Token Generation' as Category,\n  'Total tokens: ' || (SELECT metric_value FROM optiinfra_metrics.performance_metrics WHERE metric_name = 'tokens_generated' ORDER BY timestamp DESC LIMIT 1) || ' tokens' as Status",
+          "refId": "A",
+          "table": "resource_metrics",
+          "timeColumn": "timestamp",
+          "timeColumnType": "DateTime"
+        }
+      ],
+      "title": "📋 PERFORMANCE INSIGHTS",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "runpod",
+    "performance",
+    "gpu"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-48h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Los_Angeles",
+  "title": "RUNPOD PERFORMANCE MONITOR - GPU Instance",
+  "uid": "runpod-performance-updated",
+  "version": 1,
+  "weekStart": ""
+}

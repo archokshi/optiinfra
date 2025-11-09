@@ -5,7 +5,6 @@ Phase 6.5: Multi-Cloud Support
 import logging
 from typing import List
 from datetime import datetime
-import json
 
 from ..base import BaseCollector
 from ...models.metrics import ResourceMetric, CollectionResult
@@ -92,12 +91,12 @@ class AWSResourceCollector(BaseCollector):
                 state = instance.get('State', {}).get('Name', 'unknown')
                 instance_type = instance.get('InstanceType', 'unknown')
                 
-                metadata = json.dumps({
+                metadata = {
                     "instance_type": instance_type,
                     "ami_id": instance.get('ImageId'),
                     "launch_time": str(instance.get('LaunchTime')),
                     "availability_zone": instance.get('Placement', {}).get('AvailabilityZone')
-                })
+                }
                 
                 metric = ResourceMetric(
                     timestamp=datetime.now(),
@@ -133,13 +132,13 @@ class AWSResourceCollector(BaseCollector):
                 engine = db.get('Engine', 'unknown')
                 storage = db.get('AllocatedStorage', 0)
                 
-                metadata = json.dumps({
+                metadata = {
                     "engine": engine,
                     "engine_version": db.get('EngineVersion'),
                     "instance_class": db.get('DBInstanceClass'),
                     "multi_az": db.get('MultiAZ', False),
                     "storage_type": db.get('StorageType')
-                })
+                }
                 
                 metric = ResourceMetric(
                     timestamp=datetime.now(),

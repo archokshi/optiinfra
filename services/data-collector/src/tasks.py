@@ -15,6 +15,12 @@ from .config import config
 from .collectors import (
     # Application
     VultrApplicationCollector,
+    RunPodApplicationCollector,
+    # RunPod
+    RunPodCollectorSettings,
+    RunPodCostCollector,
+    RunPodPerformanceCollector,
+    RunPodResourceCollector,
     # AWS (Dedicated)
     AWSCostCollector, AWSPerformanceCollector, AWSResourceCollector,
     # GCP (Dedicated)
@@ -81,8 +87,13 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
             if data_type == "cost":
                 # Instantiate the appropriate collector
                 collector = None
+
+                if provider == "runpod":
+                    creds = credential_manager.get_credential(customer_id, provider) or {}
+                    settings = RunPodCollectorSettings.from_sources(customer_id, creds)
+                    collector = RunPodCostCollector(settings)
                 
-                if is_generic_provider(provider):
+                elif is_generic_provider(provider):
                     creds = credential_manager.get_credential(customer_id, provider) or {}
                     try:
                         generic_config = build_generic_collector_config(
@@ -141,7 +152,15 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
                 result = collector.collect()
                 
                 # Write to ClickHouse
-                if result.success and hasattr(collector, 'get_collected_metrics'):
+                if result.success and provider == "runpod":
+                    billing_rows = (
+                        collector.get_billing_snapshots() if hasattr(collector, "get_billing_snapshots") else []
+                    )
+                    if billing_rows:
+                        records_written = clickhouse_writer.write_runpod_billing(billing_rows)
+                        total_records += records_written
+                        logger.info(f"[{task_id}] Wrote {records_written} RunPod billing snapshots")
+                elif result.success and hasattr(collector, 'get_collected_metrics'):
                     metrics = collector.get_collected_metrics()
                     if metrics:
                         records_written = clickhouse_writer.write_cost_metrics(metrics)
@@ -161,7 +180,12 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
                 # Performance data collection (Phase 6.5 Multi-Cloud)
                 collector = None
                 
-                if is_generic_provider(provider):
+                if provider == "runpod":
+                    creds = credential_manager.get_credential(customer_id, provider) or {}
+                    settings = RunPodCollectorSettings.from_sources(customer_id, creds)
+                    collector = RunPodPerformanceCollector(settings)
+
+                elif is_generic_provider(provider):
                     creds = credential_manager.get_credential(customer_id, provider) or {}
                     try:
                         generic_config = build_generic_collector_config(
@@ -209,7 +233,15 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
                 result = collector.collect()
                 
                 # Write to ClickHouse
-                if result.success:
+                if result.success and provider == "runpod":
+                    health_rows = (
+                        collector.get_endpoint_health_snapshots() if hasattr(collector, "get_endpoint_health_snapshots") else []
+                    )
+                    if health_rows:
+                        records_written = clickhouse_writer.write_runpod_endpoint_health(health_rows)
+                        total_records += records_written
+                        logger.info(f"[{task_id}] Wrote {records_written} RunPod endpoint health snapshots")
+                elif result.success:
                     metrics = collector.get_metrics()
                     if metrics:
                         records_written = clickhouse_writer.write_performance_metrics(metrics)
@@ -229,7 +261,12 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
                 # Resource data collection (Phase 6.5 Multi-Cloud)
                 collector = None
                 
-                if is_generic_provider(provider):
+                if provider == "runpod":
+                    creds = credential_manager.get_credential(customer_id, provider) or {}
+                    settings = RunPodCollectorSettings.from_sources(customer_id, creds)
+                    collector = RunPodResourceCollector(settings)
+
+                elif is_generic_provider(provider):
                     creds = credential_manager.get_credential(customer_id, provider) or {}
                     try:
                         generic_config = build_generic_collector_config(
@@ -277,7 +314,18 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
                 result = collector.collect()
                 
                 # Write to ClickHouse
-                if result.success:
+                if result.success and provider == "runpod":
+                    pod_rows = collector.get_pod_snapshots() if hasattr(collector, "get_pod_snapshots") else []
+                    endpoint_rows = collector.get_endpoint_configs() if hasattr(collector, "get_endpoint_configs") else []
+                    if pod_rows:
+                        records_written = clickhouse_writer.write_runpod_pods(pod_rows)
+                        total_records += records_written
+                        logger.info(f"[{task_id}] Wrote {records_written} RunPod pod snapshots")
+                    if endpoint_rows:
+                        records_written = clickhouse_writer.write_runpod_endpoints(endpoint_rows)
+                        total_records += records_written
+                        logger.info(f"[{task_id}] Wrote {records_written} RunPod endpoint configs")
+                elif result.success:
                     metrics = collector.get_metrics()
                     if metrics:
                         records_written = clickhouse_writer.write_resource_metrics(metrics)
@@ -296,17 +344,19 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
             elif data_type == "application":
                 # Application quality monitoring (Phase 6.5)
                 collector = None
-                creds = credential_manager.get_credential(customer_id, provider)
-                if not creds:
-                    raise ValueError(f"No {provider} credentials found for customer {customer_id}")
+                creds = credential_manager.get_credential(customer_id, provider) or {}
                 
-                # Get Groq API key from environment
-                groq_api_key = os.getenv('GROQ_API_KEY', '')
-                if not groq_api_key:
-                    logger.warning(f"[{task_id}] GROQ_API_KEY not set, skipping application collection")
-                    continue
-                
-                if provider == "vultr":
+                if provider == "runpod":
+                    settings = RunPodCollectorSettings.from_sources(customer_id, creds)
+                    collector = RunPodApplicationCollector(settings)
+                elif provider == "vultr":
+                    if not creds:
+                        raise ValueError(f"No {provider} credentials found for customer {customer_id}")
+                    # Get Groq API key from environment
+                    groq_api_key = os.getenv('GROQ_API_KEY', '')
+                    if not groq_api_key:
+                        logger.warning(f"[{task_id}] GROQ_API_KEY not set, skipping application collection")
+                        continue
                     collector = VultrApplicationCollector(
                         api_key=creds.get('api_key'),
                         customer_id=customer_id,
@@ -321,7 +371,13 @@ def collect_data_task(self, customer_id: str, provider: str, data_types: List[st
                 result = collector.collect()
                 
                 # Write to ClickHouse
-                if result.success:
+                if result.success and provider == "runpod":
+                    job_rows = collector.get_job_telemetry() if hasattr(collector, "get_job_telemetry") else []
+                    if job_rows:
+                        records_written = clickhouse_writer.write_runpod_jobs(job_rows)
+                        total_records += records_written
+                        logger.info(f"[{task_id}] Wrote {records_written} RunPod job telemetry rows")
+                elif result.success:
                     metrics = collector.get_metrics()
                     if metrics:
                         records_written = clickhouse_writer.write_application_metrics(metrics)

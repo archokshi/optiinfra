@@ -3,11 +3,17 @@ Loads settings from environment variables.
 """
 
 from typing import Optional
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
+
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
     # Service
     SERVICE_NAME: str = "cost-agent"
@@ -89,11 +95,6 @@ class Settings(BaseSettings):
     max_workflow_iterations: int = 10
     workflow_timeout_seconds: int = 300
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
-
 # Global settings instance
 settings = Settings()
 

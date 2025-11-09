@@ -278,134 +278,273 @@ class GenericCollector(BaseCollector):
         """
         Collect performance metrics from Prometheus
         
-        Queries:
-        - Request latency (P50, P95, P99)
-        - Throughput (requests per second)
-        - Queue size
-        - Tokens per second
+        Queries leverage histogram_quantile / rate to provide actionable values:
+        - Latency percentiles (p50/p95/p99)
+        - Requests per second
+        - Token throughput
+        - Queue depth / running requests
+        - Error rate
         """
         self.logger.info("Collecting performance metrics from Prometheus")
-        metrics = []
+        metrics: List[PerformanceMetric] = []
+        resource_id = f"{self.config.provider}-llm"
+        resource_name = f"{self.config.provider.upper()} LLM"
         
-        # Define Prometheus queries for vLLM/LLM metrics
-        # Use simple counter/gauge queries that don't require rate calculations
-        queries = {
-            "request_count": 'vllm:e2e_request_latency_seconds_count',
-            "latency_sum": 'vllm:e2e_request_latency_seconds_sum',
-            "queue_size": 'vllm:num_requests_waiting',
-            "requests_running": 'vllm:num_requests_running',
-            "tokens_generated_total": 'vllm:generation_tokens_total',
-            "tokens_prompt_total": 'vllm:prompt_tokens_total',
-            "kv_cache_usage": 'vllm:kv_cache_usage_perc',
-            "request_success_total": 'vllm:request_success_total',
+        # PromQL queries keyed by the metric name we want to persist.
+        # Using actual available metrics from Prometheus GPU exporter
+        prom_queries = {
+            "gpu_utilization": 'gpu_utilization_percent',
+            "latency_p95": 'histogram_quantile(0.95, sum(rate(vllm_request_latency_seconds_bucket[5m])) by (le))',
+            "throughput": 'vllm_throughput_prompts_per_second',
+            "total_requests": 'vllm_requests_total',
+            "tokens_generated": 'vllm_tokens_generated_total',
+            "batch_latency_p95": 'histogram_quantile(0.95, sum(rate(load_batch_latency_seconds_bucket[5m])) by (le))',
         }
         
-        for metric_name, query in queries.items():
+        results: Dict[str, Optional[float]] = {}
+        for name, query in prom_queries.items():
             try:
                 value = await self._query_prometheus(query)
                 if value is not None:
-                    metrics.append(PerformanceMetric(
-                        customer_id=self.config.customer_id,
-                        provider=self.config.provider,
-                        metric_type="compute",
-                        resource_id=f"{self.config.provider}-llm",
-                        resource_name=f"{self.config.provider.upper()} LLM",
-                        metric_name=metric_name,
-                        metric_value=value,
-                        unit="seconds" if "latency" in metric_name else "count",
-                        workload_type="llm_inference"
-                    ))
-            except Exception as e:
-                self.logger.warning(f"Failed to collect {metric_name}: {e}")
+                    results[name] = value
+                else:
+                    self.logger.debug(f"No data returned for {name}")
+            except Exception as exc:  # pragma: no cover - defensive logging
+                self.logger.warning(f"Failed to collect {name}: {exc}")
+        
+        # Fallback for latency metrics if histogram data is unavailable.
+        if results.get("latency_p95") is None:
+            self.logger.debug("Latency percentiles missing, checking for raw latency data")
+            try:
+                latency_count = await self._query_prometheus('vllm_request_latency_seconds_count')
+                latency_sum = await self._query_prometheus('vllm_request_latency_seconds_sum')
+                if latency_count and latency_sum and latency_count > 0:
+                    avg_latency = latency_sum / latency_count
+                    results["latency_p95"] = avg_latency * 1000  # Convert to ms
+            except Exception as exc:  # pragma: no cover - defensive logging
+                self.logger.debug(f"Failed to compute latency fallback: {exc}")
+        
+        # Fallback for batch latency if histogram data is unavailable.
+        if results.get("batch_latency_p95") is None:
+            self.logger.debug("Batch latency percentiles missing, checking for raw batch data")
+            try:
+                batch_count = await self._query_prometheus('load_batch_latency_seconds_count')
+                batch_sum = await self._query_prometheus('load_batch_latency_seconds_sum')
+                if batch_count and batch_sum and batch_count > 0:
+                    avg_batch_latency = batch_sum / batch_count
+                    results["batch_latency_p95"] = avg_batch_latency * 1000  # Convert to ms
+            except Exception as exc:  # pragma: no cover - defensive logging
+                self.logger.debug(f"Failed to compute batch latency fallback: {exc}")
+        
+        # Persist each metric that has a value.
+        for metric_name, raw_value in results.items():
+            if raw_value is None:
+                continue
+            
+            unit = "count"
+            value = raw_value
+            metadata: Dict[str, Any] = {}
+            
+            if metric_name == "gpu_utilization":
+                unit = "percent"
+                metadata["percentage"] = raw_value
+            elif metric_name.startswith("latency") or metric_name.startswith("batch_latency"):
+                # Convert seconds to milliseconds for display.
+                value = raw_value * 1000
+                unit = "milliseconds"
+            elif metric_name == "throughput":
+                unit = "prompts_per_second"
+            elif metric_name == "total_requests":
+                unit = "requests"
+            elif metric_name == "tokens_generated":
+                unit = "tokens"
+            
+            metrics.append(PerformanceMetric(
+                customer_id=self.config.customer_id,
+                provider=self.config.provider,
+                metric_type="compute",
+                resource_id=resource_id,
+                resource_name=resource_name,
+                metric_name=metric_name,
+                metric_value=value,
+                unit=unit,
+                metadata=metadata,
+                workload_type="llm_inference"
+            ))
         
         self.logger.info(f"Collected {len(metrics)} performance metrics")
         return metrics
     
     async def _collect_resource_metrics(self) -> List[ResourceMetric]:
         """
-        Collect resource metrics from Prometheus
+        Collect resource metrics from Prometheus GPU exporter
         
         Queries:
-        - CPU utilization
-        - Memory usage
-        - Disk I/O
-        - Network I/O
+        - GPU utilization
+        - GPU memory usage
+        - GPU temperature
+        - GPU power draw
         """
         self.logger.info("Collecting resource metrics from Prometheus")
-        metrics = []
+        metrics: List[ResourceMetric] = []
+        resource_id = f"{self.config.provider}-gpu"
+        resource_name = f"{self.config.provider.upper()} GPU"
         
-        # Define Prometheus queries for system metrics
-        queries = {
-            "cpu_utilization": '100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)',
-            "memory_used": 'node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes',
-            "memory_total": 'node_memory_MemTotal_bytes',
-            "disk_read_bytes": 'rate(node_disk_read_bytes_total[5m])',
-            "disk_write_bytes": 'rate(node_disk_written_bytes_total[5m])',
-            "network_receive_bytes": 'rate(node_network_receive_bytes_total[5m])',
-            "network_transmit_bytes": 'rate(node_network_transmit_bytes_total[5m])',
-        }
-        
-        for metric_name, query in queries.items():
+        async def query_value(name: str, promql: str) -> Optional[float]:
+            """Helper to run a Prometheus query with contextual logging."""
             try:
-                value = await self._query_prometheus(query)
-                if value is not None:
-                    # Calculate utilization for memory
-                    if metric_name == "memory_used":
-                        memory_total = await self._query_prometheus(queries["memory_total"])
-                        utilization = (value / memory_total * 100) if memory_total else 0
-                    else:
-                        utilization = value if "utilization" in metric_name else 0
-                    
-                    metrics.append(ResourceMetric(
-                        customer_id=self.config.customer_id,
-                        provider=self.config.provider,
-                        metric_type="inventory",
-                        resource_id=f"{self.config.provider}-instance",
-                        resource_name=f"{self.config.provider.upper()} Instance",
-                        resource_type="instance",
-                        status="active",
-                        region="unknown",
-                        utilization=utilization,
-                        capacity=value,
-                        unit="percent" if "utilization" in metric_name else "bytes"
-                    ))
-            except Exception as e:
-                self.logger.warning(f"Failed to collect {metric_name}: {e}")
+                value = await self._query_prometheus(promql)
+                if value is None:
+                    self.logger.debug(f"No datapoint for resource metric {name}")
+                return value
+            except Exception as exc:  # pragma: no cover - defensive logging
+                self.logger.warning(f"Failed PromQL for {name}: {exc}")
+                return None
         
+        # GPU Utilization
+        gpu_util = await query_value("gpu_utilization", 'gpu_utilization_percent')
+        if gpu_util is not None:
+            metrics.append(ResourceMetric(
+                customer_id=self.config.customer_id,
+                provider=self.config.provider,
+                metric_type="inventory",
+                resource_id=resource_id,
+                resource_name=resource_name,
+                resource_type="gpu",
+                status="active",
+                region="unknown",
+                utilization=max(gpu_util, 0),
+                capacity=gpu_util,
+                unit="percent",
+                metadata={"metric_name": "gpu_utilization"}
+            ))
+        
+        # GPU Memory Utilization
+        gpu_mem_util = await query_value("gpu_memory_utilization", 'gpu_memory_utilization_percent')
+        if gpu_mem_util is not None:
+            metrics.append(ResourceMetric(
+                customer_id=self.config.customer_id,
+                provider=self.config.provider,
+                metric_type="inventory",
+                resource_id=resource_id,
+                resource_name=resource_name,
+                resource_type="gpu_memory",
+                status="active",
+                region="unknown",
+                utilization=max(gpu_mem_util, 0),
+                capacity=gpu_mem_util,
+                unit="percent",
+                metadata={"metric_name": "gpu_memory_utilization"}
+            ))
+        
+        # GPU Memory Used/Total
+        gpu_mem_used = await query_value("gpu_memory_used_bytes", 'gpu_memory_used_bytes')
+        gpu_mem_total = await query_value("gpu_memory_total_bytes", 'gpu_memory_total_bytes')
+        if gpu_mem_used is not None and gpu_mem_total is not None:
+            used_gb = gpu_mem_used / (1024**3)
+            total_gb = gpu_mem_total / (1024**3)
+            metrics.append(ResourceMetric(
+                customer_id=self.config.customer_id,
+                provider=self.config.provider,
+                metric_type="inventory",
+                resource_id=resource_id,
+                resource_name=resource_name,
+                resource_type="gpu_memory",
+                status="active",
+                region="unknown",
+                utilization=used_gb,
+                capacity=total_gb,
+                unit="gigabytes",
+                metadata={
+                    "metric_name": "gpu_memory_bytes",
+                    "used_gb": used_gb,
+                    "total_gb": total_gb
+                }
+            ))
+        
+        # GPU Temperature
+        gpu_temp = await query_value("gpu_temperature_celsius", 'gpu_temperature_celsius')
+        if gpu_temp is not None:
+            metrics.append(ResourceMetric(
+                customer_id=self.config.customer_id,
+                provider=self.config.provider,
+                metric_type="inventory",
+                resource_id=resource_id,
+                resource_name=resource_name,
+                resource_type="gpu_temperature",
+                status="active",
+                region="unknown",
+                utilization=gpu_temp,
+                capacity=gpu_temp,
+                unit="celsius",
+                metadata={"metric_name": "gpu_temperature"}
+            ))
+        
+        # GPU Power Draw
+        gpu_power = await query_value("gpu_power_draw_watts", 'gpu_power_draw_watts')
+        if gpu_power is not None:
+            metrics.append(ResourceMetric(
+                customer_id=self.config.customer_id,
+                provider=self.config.provider,
+                metric_type="inventory",
+                resource_id=resource_id,
+                resource_name=resource_name,
+                resource_type="gpu_power",
+                status="active",
+                region="unknown",
+                utilization=gpu_power,
+                capacity=gpu_power,
+                unit="watts",
+                metadata={"metric_name": "gpu_power_draw"}
+            ))
         self.logger.info(f"Collected {len(metrics)} resource metrics")
         return metrics
     
     async def _collect_application_metrics(self) -> List[ApplicationMetric]:
         """
-        Collect application quality metrics from Prometheus
+        Collect application health and quality metrics from Prometheus
         
         Queries:
-        - Request success rate
-        - Error rate
-        - Response quality (if available)
+        - Service health status
+        - Quality score
+        - Load phase activity
+        - GPU cost per hour
         """
         self.logger.info("Collecting application metrics from Prometheus")
         metrics = []
         
         # Define Prometheus queries for application metrics
         queries = {
-            "success_rate": 'rate(vllm_request_success_total[5m]) / (rate(vllm_request_success_total[5m]) + rate(vllm_request_failure_total[5m]))',
-            "error_rate": 'rate(vllm_request_failure_total[5m]) / (rate(vllm_request_success_total[5m]) + rate(vllm_request_failure_total[5m]))',
+            "service_health": 'gpu_exporter_success',
+            "quality_score": 'vllm_quality_score',
+            "load_phase_active": 'load_phase_active_minutes',
+            "gpu_cost_hourly": 'gpu_cost_hourly_usd',
         }
         
         for metric_name, query in queries.items():
             try:
                 value = await self._query_prometheus(query)
                 if value is not None:
+                    # Convert to appropriate score/percentage for health metrics
+                    score = value
+                    if metric_name == "service_health":
+                        score = value * 100  # Convert 0/1 to 0/100 percentage
+                    elif metric_name in ["quality_score", "load_phase_active"]:
+                        score = value  # Keep as is for these metrics
+                    
                     metrics.append(ApplicationMetric(
                         customer_id=self.config.customer_id,
                         provider=self.config.provider,
-                        application_id=f"{self.config.provider}-llm",
-                        application_name=f"{self.config.provider.upper()} LLM",
-                        metric_type="quality",
-                        score=value * 100,  # Convert to percentage
-                        model_name="unknown",
-                        metadata={"metric": metric_name}
+                        application_id=f"{self.config.provider}-gpu",
+                        application_name=f"{self.config.provider.upper()} GPU Service",
+                        metric_type="health" if metric_name == "service_health" else "quality",
+                        score=score,
+                        model_name="NVIDIA L4",
+                        metadata={
+                            "metric": metric_name,
+                            "unit": "percent" if metric_name == "service_health" else "score",
+                            "raw_value": value
+                        }
                     ))
             except Exception as e:
                 self.logger.warning(f"Failed to collect {metric_name}: {e}")
@@ -437,33 +576,97 @@ class GenericCollector(BaseCollector):
             # Parse Prometheus format metrics
             dcgm_metrics = self._parse_prometheus_text(response.text)
             
-            # Extract GPU metrics
-            gpu_metrics_map = {
-                "DCGM_FI_DEV_GPU_UTIL": ("gpu_utilization", "percent"),
-                "DCGM_FI_DEV_FB_USED": ("gpu_memory_used", "MB"),
-                "DCGM_FI_DEV_FB_FREE": ("gpu_memory_free", "MB"),
-                "DCGM_FI_DEV_POWER_USAGE": ("gpu_power_usage", "watts"),
-                "DCGM_FI_DEV_GPU_TEMP": ("gpu_temperature", "celsius"),
-                "DCGM_FI_DEV_SM_CLOCK": ("gpu_sm_clock", "MHz"),
-                "DCGM_FI_DEV_MEM_CLOCK": ("gpu_mem_clock", "MHz"),
-            }
+            resource_id = f"{self.config.provider}-gpu"
+            resource_name = f"{self.config.provider.upper()} GPU"
             
-            for dcgm_name, (metric_name, unit) in gpu_metrics_map.items():
-                if dcgm_name in dcgm_metrics:
-                    value = dcgm_metrics[dcgm_name]
-                    metrics.append(ResourceMetric(
-                        customer_id=self.config.customer_id,
-                        provider=self.config.provider,
-                        metric_type="inventory",
-                        resource_id=f"{self.config.provider}-gpu",
-                        resource_name=f"{self.config.provider.upper()} GPU",
-                        resource_type="gpu",
-                        status="active",
-                        region="unknown",
-                        utilization=value if "util" in metric_name else 0,
-                        capacity=value,
-                        unit=unit
-                    ))
+            gpu_util = dcgm_metrics.get("DCGM_FI_DEV_GPU_UTIL")
+            fb_used = dcgm_metrics.get("DCGM_FI_DEV_FB_USED")
+            fb_free = dcgm_metrics.get("DCGM_FI_DEV_FB_FREE")
+            power_usage = dcgm_metrics.get("DCGM_FI_DEV_POWER_USAGE")
+            temperature = dcgm_metrics.get("DCGM_FI_DEV_GPU_TEMP")
+            sm_clock = dcgm_metrics.get("DCGM_FI_DEV_SM_CLOCK")
+            mem_clock = dcgm_metrics.get("DCGM_FI_DEV_MEM_CLOCK")
+            
+            used_gb = (fb_used or 0) / 1024 if fb_used is not None else None
+            total_gb = ((fb_used or 0) + (fb_free or 0)) / 1024 if fb_used is not None or fb_free is not None else None
+            
+            if gpu_util is not None:
+                metadata = {
+                    "metric_name": "gpu_utilization",
+                    "gpu_memory_used_gb": used_gb,
+                    "gpu_memory_total_gb": total_gb,
+                    "power_usage_watts": power_usage,
+                    "temperature_celsius": temperature,
+                    "sm_clock_mhz": sm_clock,
+                    "mem_clock_mhz": mem_clock,
+                }
+                metrics.append(ResourceMetric(
+                    customer_id=self.config.customer_id,
+                    provider=self.config.provider,
+                    metric_type="inventory",
+                    resource_id=resource_id,
+                    resource_name=resource_name,
+                    resource_type="gpu",
+                    status="active",
+                    region="unknown",
+                    utilization=gpu_util,
+                    capacity=gpu_util,
+                    unit="percent",
+                    metadata=metadata
+                ))
+            
+            if used_gb is not None:
+                metadata = {
+                    "metric_name": "gpu_memory_used",
+                    "gpu_memory_used_gb": used_gb,
+                    "gpu_memory_total_gb": total_gb,
+                }
+                metrics.append(ResourceMetric(
+                    customer_id=self.config.customer_id,
+                    provider=self.config.provider,
+                    metric_type="inventory",
+                    resource_id=resource_id,
+                    resource_name=resource_name,
+                    resource_type="gpu",
+                    status="active",
+                    region="unknown",
+                    utilization=0,
+                    capacity=used_gb,
+                    unit="gigabytes",
+                    metadata=metadata
+                ))
+            
+            if power_usage is not None:
+                metrics.append(ResourceMetric(
+                    customer_id=self.config.customer_id,
+                    provider=self.config.provider,
+                    metric_type="inventory",
+                    resource_id=resource_id,
+                    resource_name=resource_name,
+                    resource_type="gpu",
+                    status="active",
+                    region="unknown",
+                    utilization=0,
+                    capacity=power_usage,
+                    unit="watts",
+                    metadata={"metric_name": "gpu_power_usage"}
+                ))
+            
+            if temperature is not None:
+                metrics.append(ResourceMetric(
+                    customer_id=self.config.customer_id,
+                    provider=self.config.provider,
+                    metric_type="inventory",
+                    resource_id=resource_id,
+                    resource_name=resource_name,
+                    resource_type="gpu",
+                    status="active",
+                    region="unknown",
+                    utilization=0,
+                    capacity=temperature,
+                    unit="celsius",
+                    metadata={"metric_name": "gpu_temperature"}
+                ))
             
             self.logger.info(f"Collected {len(metrics)} GPU metrics")
             
@@ -475,10 +678,16 @@ class GenericCollector(BaseCollector):
     async def _collect_cost_metrics(self) -> List[CostMetric]:
         """
         Calculate cost metrics based on runtime and hourly rate
+        Plus collect GPU cost metrics from Prometheus
         
         For providers without billing APIs (like RunPod), we calculate costs based on:
         - Hourly rate (configured)
         - Runtime (hours since pod started)
+        
+        Additional GPU cost metrics from Prometheus:
+        - GPU hourly rate
+        - GPU accumulated cost
+        - Savings potential
         
         Returns:
             List of CostMetric objects
@@ -487,29 +696,62 @@ class GenericCollector(BaseCollector):
         metrics = []
         
         try:
+            # Original cost calculation based on configured hourly rate
             if not self.config.hourly_rate:
                 self.logger.warning("No hourly rate configured, skipping cost calculation")
-                return metrics
+            else:
+                # Calculate hours running
+                now = datetime.now()
+                runtime_hours = (now - self.config.pod_start_time).total_seconds() / 3600
+                
+                # Calculate total cost
+                total_cost = self.config.hourly_rate * runtime_hours
+                
+                # Create cost metric
+                metrics.append(CostMetric(
+                    timestamp=now,
+                    customer_id=self.config.customer_id,
+                    provider=self.config.provider,
+                    instance_id=self.config.instance_id,
+                    cost_type="compute",
+                    amount=round(total_cost, 4),
+                    currency="USD"
+                ))
+                
+                self.logger.info(f"Calculated cost: ${total_cost:.4f} ({runtime_hours:.2f} hours @ ${self.config.hourly_rate}/hour)")
             
-            # Calculate hours running
-            now = datetime.now()
-            runtime_hours = (now - self.config.pod_start_time).total_seconds() / 3600
+            # Collect GPU cost metrics from Prometheus
+            gpu_cost_queries = {
+                "gpu_hourly_rate": "gpu_cost_hourly_usd",
+                "gpu_accumulated_cost": "gpu_cost_accumulated_usd_total", 
+                "savings_potential": "savings_potential_usd",
+            }
             
-            # Calculate total cost
-            total_cost = self.config.hourly_rate * runtime_hours
-            
-            # Create cost metric
-            metrics.append(CostMetric(
-                timestamp=now,
-                customer_id=self.config.customer_id,
-                provider=self.config.provider,
-                instance_id=self.config.instance_id,
-                cost_type="compute",
-                amount=round(total_cost, 4),
-                currency="USD"
-            ))
-            
-            self.logger.info(f"Calculated cost: ${total_cost:.4f} ({runtime_hours:.2f} hours @ ${self.config.hourly_rate}/hour)")
+            for cost_type, query in gpu_cost_queries.items():
+                try:
+                    value = await self._query_prometheus(query)
+                    if value is not None:
+                        # Map cost_type to appropriate cost_type for CostMetric
+                        metric_cost_type = {
+                            "gpu_hourly_rate": "gpu_hourly",
+                            "gpu_accumulated_cost": "gpu_accumulated",
+                            "savings_potential": "savings"
+                        }.get(cost_type, cost_type)
+                        
+                        metrics.append(CostMetric(
+                            timestamp=datetime.now(),
+                            customer_id=self.config.customer_id,
+                            provider=self.config.provider,
+                            instance_id=f"{self.config.instance_id}-gpu",
+                            cost_type=metric_cost_type,
+                            amount=round(value, 4),
+                            currency="USD",
+                            metadata={"source": "prometheus_gpu_exporter"}
+                        ))
+                        
+                        self.logger.info(f"Collected GPU cost metric {cost_type}: ${value:.4f}")
+                except Exception as exc:
+                    self.logger.debug(f"Failed to collect GPU cost metric {cost_type}: {exc}")
             
         except Exception as e:
             self.logger.error(f"Failed to calculate cost metrics: {e}")

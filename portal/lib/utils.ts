@@ -35,27 +35,54 @@ export function formatNumber(value: number): string {
   return value.toString();
 }
 
-export function formatRelativeTime(timestamp: string): string {
-  const now = new Date();
-  const date = new Date(timestamp);
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+const PACIFIC_TIMEZONE = "America/Los_Angeles";
 
-  if (seconds < 60) return "just now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
-  
-  return date.toLocaleDateString();
+const pacificDateFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: PACIFIC_TIMEZONE,
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
+const pacificDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: PACIFIC_TIMEZONE,
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZoneName: "short",
+});
+
+function formatPacificDateTime(timestamp: string): string {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+  return pacificDateTimeFormatter.format(date);
+}
+
+export function formatRelativeTime(timestamp?: string): string {
+  if (!timestamp) {
+    return "No heartbeat";
+  }
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  const absolute = formatPacificDateTime(timestamp);
+
+  if (seconds < 60) return `just now (${absolute})`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago (${absolute})`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago (${absolute})`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago (${absolute})`;
+
+  return absolute;
 }
 
 export function formatDateTime(timestamp: string): string {
-  return new Date(timestamp).toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatPacificDateTime(timestamp);
 }
 
 export function getStatusColor(status: string): string {

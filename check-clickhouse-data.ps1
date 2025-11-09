@@ -10,7 +10,7 @@ SELECT
     cost_type,
     amount,
     currency
-FROM cost_metrics 
+FROM optiinfra_metrics.cost_metrics 
 WHERE customer_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11' 
   AND provider = 'runpod'
 ORDER BY timestamp DESC

@@ -5,6 +5,13 @@ import { AgentStatusCard } from "@/components/dashboard/agent-status-card";
 import { MetricsChart } from "@/components/dashboard/metrics-chart";
 import { RecommendationCard } from "@/components/dashboard/recommendation-card";
 import type { Agent, Recommendation, DashboardData } from "@/lib/types";
+import {
+  asRunPodPlaceholder,
+  formatDateTime,
+  formatNumber,
+  formatKey,
+  isRunPodDashboardSection,
+} from "@/lib/runpod";
 
 class ApplicationAgentClient {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T | null> {
@@ -141,6 +148,42 @@ export default function ApplicationAgentPage() {
     consistency: (item.quality || 0) * 1.02,
   }));
 
+  const runpodMetrics = dashboardData.metrics?.runpod;
+  const runpodData = isRunPodDashboardSection(runpodMetrics) ? runpodMetrics : null;
+  const runpodStatus = !runpodData ? asRunPodPlaceholder(runpodMetrics) : null;
+  const runpodJobStats = runpodData?.job_stats ?? [];
+  const runpodJobSeries = runpodData?.job_timeseries ?? [];
+  const runpodEndpointHealth = runpodData?.endpoint_health ?? [];
+  const runpodApplicationSummary = runpodData?.application_summary;
+
+  const aggregatedSeries = runpodJobSeries.reduce<
+    Record<
+      string,
+      {
+        total_jobs: number;
+        failed_jobs: number;
+      }
+    >
+  >((acc, point) => {
+    const bucket = point.timestamp;
+    const entry = acc[bucket] || { total_jobs: 0, failed_jobs: 0 };
+    entry.total_jobs += point.total_jobs ?? 0;
+    entry.failed_jobs += point.failed_jobs ?? 0;
+    acc[bucket] = entry;
+    return acc;
+  }, {});
+
+  const runpodTimeline = Object.entries(aggregatedSeries)
+    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+    .map(([timestamp, value]) => ({
+      timestamp: new Date(timestamp).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      jobs: value.total_jobs,
+      failed: value.failed_jobs,
+    }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -193,6 +236,182 @@ export default function ApplicationAgentPage() {
           type="line"
         />
       </div>
+
+      {runpodData ? (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">RunPod Workflow Activity</h2>
+            <p className="text-gray-500 mt-1">
+              Job throughput and status distribution for RunPod-backed applications
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-500">Jobs Processed (6h)</p>
+              <p className="mt-2 text-2xl font-semibold text-gray-900">
+                {formatNumber(runpodApplicationSummary?.total_jobs ?? 0)}
+              </p>
+              <p className="mt-2 text-xs text-gray-400">
+                Last update {formatDateTime(runpodApplicationSummary?.last_updated)}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-500">Failed Jobs</p>
+              <p className="mt-2 text-2xl font-semibold text-rose-600">
+                {formatNumber(runpodApplicationSummary?.failed_jobs ?? 0)}
+              </p>
+              <p className="mt-2 text-xs text-gray-400">
+                Includes errored or aborted executions
+              </p>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <p className="text-sm text-gray-500">Active Endpoints</p>
+              <p className="mt-2 text-2xl font-semibold text-indigo-600">
+                {formatNumber(runpodApplicationSummary?.active_endpoints ?? 0)}
+              </p>
+              <p className="mt-2 text-xs text-gray-400">
+                Reporting job activity in the last 6 hours
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <MetricsChart
+              title="RunPod Job Status Timeline"
+              data={runpodTimeline}
+              dataKeys={[
+                { key: "jobs", color: "#22c55e", label: "Jobs" },
+                { key: "failed", color: "#dc2626", label: "Failed" },
+              ]}
+              type="line"
+            />
+          </div>
+
+          {runpodApplicationSummary?.status_counts && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900">Status Breakdown</h3>
+              <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                {Object.entries(runpodApplicationSummary.status_counts).map(([status, count]) => (
+                  <div key={status} className="rounded border border-gray-200 p-4">
+                    <dt className="text-gray-500 uppercase tracking-wide">
+                      {formatKey(status)}
+                    </dt>
+                    <dd className="mt-2 text-lg font-semibold text-gray-900">
+                      {formatNumber(count)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900">Endpoint Job Metrics</h3>
+            {runpodJobStats.length > 0 ? (
+              <div className="mt-4 overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead>
+                    <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      <th scope="col" className="px-4 py-2">Endpoint</th>
+                      <th scope="col" className="px-4 py-2">Jobs</th>
+                      <th scope="col" className="px-4 py-2">Failed</th>
+                      <th scope="col" className="px-4 py-2">Avg Exec (ms)</th>
+                      <th scope="col" className="px-4 py-2">P95 Exec (ms)</th>
+                      <th scope="col" className="px-4 py-2">Tokens Out</th>
+                      <th scope="col" className="px-4 py-2">Last Observed</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {runpodJobStats.map((row) => (
+                      <tr key={row.endpoint_id} className="hover:bg-gray-50">
+                        <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                          {row.endpoint_id}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.total_jobs)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.failed_jobs)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.avg_execution_ms, { maximumFractionDigits: 1 })}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.p95_execution_ms, { maximumFractionDigits: 1 })}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.total_output_tokens)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatDateTime(row.last_observed)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-gray-500">
+                RunPod job metrics will appear after the first workflows execute.
+              </p>
+            )}
+          </div>
+
+          {runpodEndpointHealth.length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900">Endpoint Queue Health</h3>
+              <div className="mt-4 overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead>
+                    <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      <th scope="col" className="px-4 py-2">Endpoint</th>
+                      <th scope="col" className="px-4 py-2">Jobs In Queue</th>
+                      <th scope="col" className="px-4 py-2">Jobs In Progress</th>
+                      <th scope="col" className="px-4 py-2">Jobs Failed</th>
+                      <th scope="col" className="px-4 py-2">Observed</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {runpodEndpointHealth.map((row) => (
+                      <tr key={row.endpoint_id} className="hover:bg-gray-50">
+                        <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                          {row.endpoint_id}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.jobs_in_queue)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.jobs_in_progress)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatNumber(row.jobs_failed)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                          {formatDateTime(row.observed_ts)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : runpodStatus ? (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-blue-800">
+            RunPod metrics status: {runpodStatus.status}.
+            {runpodStatus.note ? ` ${runpodStatus.note}` : ""}
+          </p>
+        </div>
+      ) : runpodMetrics === undefined ? null : (
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <p className="text-slate-700">
+            RunPod workflow metrics will appear once job telemetry is ingested.
+          </p>
+        </div>
+      )}
 
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-4">

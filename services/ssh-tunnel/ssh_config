@@ -1,0 +1,7 @@
+Host runpod
+    HostName 213.173.105.12
+    User root
+    Port 47295
+    IdentityFile C:\Users\alpes\.ssh\id_ed25519
+    IdentitiesOnly yes
+    StrictHostKeyChecking accept-new
